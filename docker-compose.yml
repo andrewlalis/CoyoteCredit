@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+
+  # Mailhog server for catching outbound emails in development.
+  mailhog:
+    container_name: mailhog-cc
+    image: mailhog/mailhog
+    expose:
+      - "8025"
+    ports:
+      - "1025:1025" # SMTP Server
+      - "8025:8025" # Web UI
+    networks:
+      - network-cc
+
+  # Database Service.
+  db:
+    image: mariadb:latest
+    container_name: mariadb-cc
+    restart: unless-stopped
+    environment:
+      MYSQL_USER: tester
+      MYSQL_PASSWORD: tester
+      MYSQL_DATABASE: coyotecredit
+      MYSQL_ROOT_PASSWORD: 7FQJ8DPcJrkuZ3CH6iV3XVsXzcel9G4JU
+    networks:
+      - network-cc
+    ports:
+      - "3306:3306"
+
+networks:
+  network-cc:
+    driver: bridge
