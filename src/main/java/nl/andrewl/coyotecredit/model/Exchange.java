@@ -3,6 +3,7 @@ package nl.andrewl.coyotecredit.model;
 import lombok.Getter;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -21,11 +22,15 @@ public class Exchange {
 	@Column(nullable = false)
 	private String name;
 
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinTable(
-			name = "exchange_supported_currency",
-			joinColumns = @JoinColumn(name = "currency_id"),
-			inverseJoinColumns = @JoinColumn(name = "exchange_id")
-	)
-	private Set<Currency> supportedCurrencies;
+	@OneToMany(mappedBy = "exchange")
+	private Set<ExchangePair> currencyPairs;
+
+	public Set<Currency> getSupportedCurrencies() {
+		Set<Currency> currencies = new HashSet<>();
+		for (var pair : getCurrencyPairs()) {
+			currencies.add(pair.getFromCurrency());
+			currencies.add(pair.getToCurrency());
+		}
+		return currencies;
+	}
 }

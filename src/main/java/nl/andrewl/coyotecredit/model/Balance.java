@@ -19,6 +19,6 @@ public class Balance {
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	private Currency currency;
 
-	@Column(nullable = false, precision = 24, scale = 4)
+	@Column(nullable = false, precision = 24, scale = 10)
 	private BigDecimal amount;
 }

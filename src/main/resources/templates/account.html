@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <title>CC - Account</title>
+</head>
+
+<body>
+    <h1>Account <span th:text="${account.number}"></span></h1>
+
+    <h3>Balance</h3>
+    <ul>
+        <li th:each="balance : ${account.balances}">
+            <span th:text="${balance.currencyIdentifier}"></span> - <span th:text="${balance.amount}"></span>
+        </li>
+    </ul>
+</body>
