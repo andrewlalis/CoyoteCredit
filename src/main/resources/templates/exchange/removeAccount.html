@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Add Account', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1>Remove Account</h1>
+    <p>
+        Are you sure you want to remove this account?
+    </p>
+    <form th:action="@{/exchanges/{eId}/removeAccount/{aId}(eId=${exchangeId}, aId=${accountId})}" th:method="post">
+        <a class="btn btn-secondary" th:href="@{/exchanges/{eId}/accounts(eId=${exchangeId})}">Cancel</a>
+        <button class="btn btn-danger" type="submit">Remove</button>
+    </form>
+</div>

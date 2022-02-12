@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Add Account', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1>Add Account</h1>
+    <p>
+        Use this page to add an account to the exchange.
+    </p>
+
+    <form th:href="@{/exchanges/{eId}/addAccount(eId=${exchangeId})}" th:method="post">
+        <div class="mb-3">
+            <label for="nameInput" class="form-label">Name</label>
+            <input id="nameInput" type="text" class="form-control" name="name"/>
+        </div>
+        <div class="mb-3">
+            <label for="usernameInput" class="form-label">Username</label>
+            <input id="usernameInput" type="text" class="form-control" name="username"/>
+        </div>
+        <div class="mb-3">
+            <label for="passwordInput" class="form-label">Password</label>
+            <input id="passwordInput" type="password" class="form-control" name="password"/>
+        </div>
+        <input type="hidden" name="_csrf" th:value="${_csrf.getToken()}"/>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Exchange Accounts', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1>Accounts</h1>
+
+    <a class="btn btn-primary" th:href="@{/exchanges/{eId}/addAccount(eId=${exchangeId})}">Add Account</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Number</th>
+                <th>Name</th>
+                <th>Admin</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="account : ${accounts}">
+                <td><a th:href="@{/accounts/{id}(id=${account.id()})}" th:text="${account.number()}"></a></td>
+                <td th:text="${account.name()}"></td>
+                <td th:text="${account.admin()}"></td>
+                <td th:text="${account.totalBalance()}"></td>
+                <td><a th:href="@{/exchanges/{eId}/removeAccount/{aId}(eId=${exchangeId}, aId=${account.id()})}">Remove</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

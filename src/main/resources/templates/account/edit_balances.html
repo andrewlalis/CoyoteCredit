@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Add Account', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1>Edit Balances</h1>
+
+    <form th:action="@{/accounts/{aId}/editBalances(aId=${accountId})}" th:method="post">
+        <div class="mb-3" th:each="bal, iter : ${account.balances()}">
+            <label th:for="${'tradeable-' + bal.id()}" class="form-label" th:text="${bal.symbol()}"></label>
+            <input type="number" min="0" th:value="${bal.amount()}" th:name="${'tradeable-' + bal.id()}" class="form-control"/>
+        </div>
+        <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+</div>

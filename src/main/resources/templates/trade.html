@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Trade', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1>Trade</h1>
+
+    <form id="tradeForm" th:action="@{/trade/{account}(account=${data.accountId()})}" method="post">
+        <input type="hidden" id="exchangeIdInput" th:value="${data.exchangeId()}"/>
+        <input type="hidden" id="accountIdInput" th:value="${data.accountId()}"/>
+        <div class="mb-3">
+            <label for="sellTradeableSelect" class="form-label">Tradeable to Sell</label>
+            <select id="sellTradeableSelect" class="form-select">
+                <option selected hidden>Choose something to sell</option>
+                <option
+                        th:each="t : ${data.tradeablesToSell()}"
+                        th:value="${t.id()}"
+                        th:text="${t.name() + ' (' + t.symbol() + ')'}"
+                        th:data-priceusd="${t.marketPriceUsd()}"
+                        th:data-type="${t.type()}"
+                        th:data-balance="${data.accountBalances().get(t.symbol()).toPlainString()}"
+                        th:disabled="${data.accountBalances().get(t.symbol()).signum() == 0 ? true : false}"
+                ></option>
+            </select>
+            <div id="sellTradeableSelectText" class="form-text" hidden></div>
+        </div>
+
+        <div class="mb-3">
+            <label for="sellValueInput" class="form-label">Value to Sell</label>
+            <input type="number" class="form-control" id="sellValueInput"/>
+        </div>
+
+        <div class="mb-3">
+            <label for="buyTradeableSelect" class="form-label">Tradeable to Buy</label>
+            <select id="buyTradeableSelect" class="form-select">
+                <option value="" selected disabled hidden>Choose something to buy</option>
+                <option
+                        th:each="t : ${data.tradeablesToBuy()}"
+                        th:value="${t.id()}"
+                        th:text="${t.name() + ' (' + t.symbol() + ')'}"
+                        th:data-priceusd="${t.marketPriceUsd()}"
+                        th:data-type="${t.type()}"
+                ></option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="buyValueInput" class="form-label">Value to Buy</label>
+            <input type="number" class="form-control" id="buyValueInput"/>
+        </div>
+
+        <input type="hidden" name="_csrf" th:value="${_csrf.getToken()}"/>
+        <input type="hidden" name="type"/>
+        <input type="hidden" name="sellTradeableId"/>
+        <input type="hidden" name="buyTradeableId"/>
+        <input type="hidden" name="value"/>
+
+        <button id="submitButton" type="button" class="btn btn-primary">Submit</button>
+    </form>
+
+    <script src="/static/js/trade.js"></script>
+</div>

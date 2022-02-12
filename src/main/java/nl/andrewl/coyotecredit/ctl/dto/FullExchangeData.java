@@ -1,0 +1,16 @@
+package nl.andrewl.coyotecredit.ctl.dto;
+
+import java.util.List;
+
+/**
+ * The data that's used on the exchange page.
+ */
+public record FullExchangeData (
+		long id,
+		String name,
+		TradeableData primaryTradeable,
+		List<TradeableData> supportedTradeables,
+		// Account info
+		boolean accountAdmin
+) {
+}

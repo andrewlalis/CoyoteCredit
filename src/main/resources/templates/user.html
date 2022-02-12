@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='My Profile', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1>My Profile</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th scope="row">Username</th>
+                <td th:text="${user.username()}"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

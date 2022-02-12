@@ -1,14 +1,18 @@
 package nl.andrewl.coyotecredit.ctl;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import nl.andrewl.coyotecredit.model.User;
 import nl.andrewl.coyotecredit.service.AccountService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Map;
 
 @Controller
 @RequestMapping(path = "/accounts/{accountId}")
@@ -25,5 +29,19 @@ public class AccountPage {
 		var data = accountService.getAccountData(user, accountId);
 		model.addAttribute("account", data);
 		return "account";
+	}
+
+	@GetMapping(path = "/editBalances")
+	public String getEditBalancesPage(Model model, @PathVariable long accountId, @AuthenticationPrincipal User user) {
+		var data = accountService.getAccountData(user, accountId);
+		if (!data.userAdmin()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		model.addAttribute("account", data);
+		return "account/edit_balances";
+	}
+
+	@PostMapping(path = "/editBalances")
+	public String postEditBalances(@PathVariable long accountId, @AuthenticationPrincipal User user, @RequestParam MultiValueMap<String, String> paramMap) {
+		accountService.editBalances(accountId, user, paramMap);
+		return "redirect:/accounts/" + accountId;
 	}
 }

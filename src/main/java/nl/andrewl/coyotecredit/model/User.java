@@ -1,18 +1,22 @@
 package nl.andrewl.coyotecredit.model;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Represents a basic user in the system.
  */
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class User implements UserDetails {
 	@Id
@@ -31,6 +35,11 @@ public class User implements UserDetails {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Account> accounts;
 
+	public User(String username, String passwordHash) {
+		this.username = username;
+		this.passwordHash = passwordHash;
+		this.accounts = new HashSet<>();
+	}
 
 	// USER DETAILS IMPLEMENTATION
 

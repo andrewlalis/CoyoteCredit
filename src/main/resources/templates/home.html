@@ -2,25 +2,19 @@
 <html
         lang="en"
         xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Home', content=~{::#content})}"
 >
-<head>
-    <title>CC - Home</title>
-</head>
 
-<body>
+<div id="content" class="container">
     <h1>Welcome!</h1>
 
     <h3>Your Accounts:</h3>
     <ul>
         <li th:each="account : ${accounts}">
             <a th:href="@{/accounts/{id}(id=${account.id()})}">
-                <span th:text="${account.accountNumber()}"></span>@
+                <span th:text="${account.accountNumber()}"></span> @
                 <span th:text="${account.exchangeName()}"></span>
             </a>
         </li>
     </ul>
-
-    <form th:action="@{/logout}" th:method="post">
-        <input type="submit" value="Logout">
-    </form>
-</body>
+</div>

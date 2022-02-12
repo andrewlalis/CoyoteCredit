@@ -8,7 +8,7 @@ public class AccountNumberUtils {
 		StringBuilder sb = new StringBuilder(19);
 		Random rand = new SecureRandom();
 		for (int i = 0; i < 16; i++) {
-			if (i % 4 == 0) sb.append('-');
+			if (i > 0 && i % 4 == 0) sb.append('-');
 			sb.append(rand.nextInt(0, 10));
 		}
 		return sb.toString();

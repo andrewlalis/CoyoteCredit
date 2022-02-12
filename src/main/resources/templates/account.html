@@ -2,18 +2,53 @@
 <html
         lang="en"
         xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Account', content=~{::#content})}"
 >
-<head>
-    <title>CC - Account</title>
-</head>
 
-<body>
-    <h1>Account <span th:text="${account.number}"></span></h1>
+<div id="content" class="container">
+    <h1>Account <span th:text="${account.number()}"></span></h1>
+    <p>In <a th:href="@{/exchanges/{id}(id=${account.exchange().id()})}" th:text="${account.exchange().name()}"></a></p>
+    <p>Total value of <span th:text="${account.totalBalance() + ' ' + account.exchange().primaryTradeable()}"></span></p>
 
-    <h3>Balance</h3>
-    <ul>
-        <li th:each="balance : ${account.balances}">
-            <span th:text="${balance.currencyIdentifier}"></span> - <span th:text="${balance.amount}"></span>
-        </li>
-    </ul>
-</body>
+    <h3>Overview</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Currency</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="bal : ${account.balances()}">
+                <td th:text="${bal.symbol()}"></td>
+                <td th:text="${bal.amount()}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Recent Transactions</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>From</th>
+                <th>Amount From</th>
+                <th>To</th>
+                <th>Amount To</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="tx : ${account.recentTransactions()}">
+                <td th:text="${tx.from().name()}"></td>
+                <td th:text="${tx.fromAmount()}"></td>
+                <td th:text="${tx.to().name()}"></td>
+                <td th:text="${tx.toAmount()}"></td>
+                <td th:text="${tx.timestamp()}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a class="btn btn-success" th:href="@{/trade/{account}(account=${account.id()})}">Trade</a>
+    <a class="btn btn-primary" th:if="${account.userAdmin()}" th:href="@{/accounts/{aId}/editBalances(aId=${account.id()})}">Edit Balances</a>
+</div>

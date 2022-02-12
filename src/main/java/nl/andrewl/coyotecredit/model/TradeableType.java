@@ -1,6 +1,6 @@
 package nl.andrewl.coyotecredit.model;
 
-public enum CurrencyType {
+public enum TradeableType {
 	FIAT,
 	CRYPTO,
 	STOCK
