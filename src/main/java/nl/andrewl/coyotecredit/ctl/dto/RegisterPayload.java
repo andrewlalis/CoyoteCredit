@@ -1,7 +1,7 @@
 package nl.andrewl.coyotecredit.ctl.dto;
 
-public record UserData (
-		long id,
+public record RegisterPayload (
 		String username,
-		String email
+		String email,
+		String password
 ) {}

@@ -3,6 +3,7 @@ package nl.andrewl.coyotecredit.model;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -29,6 +30,7 @@ public class Tradeable {
 	private TradeableType type;
 
 	@Column(nullable = false, precision = 24, scale = 10)
+	@Setter
 	private BigDecimal marketPriceUsd = new BigDecimal(1);
 
 	@Column(nullable = false)
@@ -37,12 +39,19 @@ public class Tradeable {
 	@Column
 	private String description;
 
-	public Tradeable(String symbol, TradeableType type, String name, String description, BigDecimal marketPriceUsd) {
+	/**
+	 * The exchange that this tradeable belongs to, if any.
+	 */
+	@ManyToOne(fetch = FetchType.LAZY)
+	private Exchange exchange;
+
+	public Tradeable(String symbol, TradeableType type, String name, String description, BigDecimal marketPriceUsd, Exchange exchange) {
 		this.symbol = symbol;
 		this.type = type;
 		this.name = name;
 		this.description = description;
 		this.marketPriceUsd = marketPriceUsd;
+		this.exchange = exchange;
 	}
 
 	@Override

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Login', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-4">
+
+
+            <h1>Login</h1>
+            <form th:action="@{/login/processing}" th:method="post">
+                <div class="mb-3">
+                    <label for="usernameInput" class="form-label">Username</label>
+                    <input name="username" class="form-control" type="text" id="usernameInput" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="passwordInput" class="form-label">Password</label>
+                    <input name="password" class="form-control" type="password" id="passwordInput" required>
+                </div>
+
+                <input type="submit" class="btn btn-primary" value="Login">
+                <a class="btn btn-secondary" th:href="@{/register}">Register</a>
+            </form>
+        </div>
+    </div>
+</div>

@@ -45,7 +45,8 @@ public class ExchangeService {
 						.map(TradeableData::new)
 						.sorted(Comparator.comparing(TradeableData::symbol))
 						.toList(),
-				account.isAdmin()
+				account.isAdmin(),
+				account.getId()
 		);
 	}
 
@@ -91,7 +92,7 @@ public class ExchangeService {
 		if (!account.isAdmin()) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
-		User u = userRepository.save(new User(payload.username(), passwordEncoder.encode(payload.password())));
+		User u = userRepository.save(new User(payload.username(), passwordEncoder.encode(payload.password()), payload.email()));
 		Account a = accountRepository.save(new Account(
 				AccountNumberUtils.generate(),
 				u,
@@ -187,5 +188,16 @@ public class ExchangeService {
 		accountRepository.save(account);
 		Transaction tx = new Transaction(account.getNumber(), exchange, from, fromValue, to, toValue, LocalDateTime.now(ZoneOffset.UTC));
 		transactionRepository.save(tx);
+	}
+
+	@Transactional(readOnly = true)
+	public List<ExchangeAccountData> getExchanges(User user) {
+		return accountRepository.findAllByUser(user).stream()
+				.map(a -> new ExchangeAccountData(
+						new ExchangeData(a.getExchange().getId(), a.getExchange().getName(), a.getExchange().getPrimaryTradeable().getSymbol()),
+						new SimpleAccountData(a.getId(), a.getNumber(), a.getName(), a.isAdmin(), TradeableData.DECIMAL_FORMAT.format(a.getTotalBalance()))
+				))
+				.sorted(Comparator.comparing(d -> d.exchange().name()))
+				.toList();
 	}
 }

@@ -10,7 +10,7 @@ public record FullExchangeData (
 		String name,
 		TradeableData primaryTradeable,
 		List<TradeableData> supportedTradeables,
-		// Account info
-		boolean accountAdmin
-) {
-}
+		// Account info that's needed for determining if it's possible to do some actions.
+		boolean accountAdmin,
+		long accountId
+) {}

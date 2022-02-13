@@ -47,7 +47,7 @@ public class Exchange {
 	 * The set of custom tradeables created specifically for use in this exchange.
 	 */
 	@OneToMany(mappedBy = "exchange", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<CustomTradeable> customTradeables;
+	private Set<Tradeable> customTradeables;
 
 	/**
 	 * The set of accounts that are registered with this exchange.

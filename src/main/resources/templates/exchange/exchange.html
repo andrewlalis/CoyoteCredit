@@ -8,16 +8,16 @@
     <h1 th:text="${exchange.name()}"></h1>
 
     <p>
-        Primary tradeable: <span th:text="${exchange.primaryTradeable().name()}"></span>
+        Primary asset: <span th:text="${exchange.primaryTradeable().name()}"></span>
     </p>
 
-    <h3>Supported Tradeable Currencies / Stocks</h3>
+    <h3>Tradeable Assets</h3>
     <table class="table">
         <thead>
             <tr>
                 <th>Symbol</th>
                 <th>Type</th>
-                <th>Price ($)</th>
+                <th>Price (in USD)</th>
                 <th>Name</th>
             </tr>
         </thead>
@@ -25,15 +25,14 @@
             <tr th:each="tradeable : ${exchange.supportedTradeables()}">
                 <td th:text="${tradeable.symbol()}"></td>
                 <td th:text="${tradeable.type()}"></td>
-                <td th:text="${tradeable.marketPriceUsd()}"></td>
+                <td class="currency" th:text="${tradeable.formattedPriceUsd()}"></td>
                 <td th:text="${tradeable.name()}"></td>
             </tr>
         </tbody>
     </table>
 
-    <div th:if="${exchange.accountAdmin()}">
-        <div>
-            <a class="btn btn-primary" th:href="@{/exchanges/{eId}/accounts(eId=${exchange.id()})}">View Accounts</a>
-        </div>
+    <div>
+        <a class="btn btn-primary" th:href="@{/accounts/{aId}(aId=${exchange.accountId()})}">My Account</a>
+        <a class="btn btn-primary" th:if="${exchange.accountAdmin()}" th:href="@{/exchanges/{eId}/accounts(eId=${exchange.id()})}">All Accounts</a>
     </div>
 </div>

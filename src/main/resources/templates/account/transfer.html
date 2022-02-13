@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Add Account', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <form th:action="@{/accounts/{aId}/transfer(aId=${accountId})}" th:method="post">
+        <div class="mb-3">
+            <label for="recipientNumberInput" class="form-label">Recipient Account Number</label>
+            <input type="text" name="recipientNumber" class="form-control" id="recipientNumberInput" required/>
+        </div>
+        <div class="mb-3">
+            <label for="tradeableSelect" class="form-label">Asset</label>
+            <select class="form-select" id="tradeableSelect" name="tradeableId" required>
+                <option
+                        th:each="b : ${balances}"
+                        th:text="${b.symbol() + ' - Balance ' + b.amount()}"
+                        th:value="${b.id()}"
+                ></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="amountInput" class="form-label">Amount</label>
+            <input type="number" min="0" name="amount" class="form-control" id="amountInput" required/>
+        </div>
+        <div class="mb-3">
+            <label for="messageTextArea" class="form-label">Message</label>
+            <textarea class="form-control" name="message" rows="3" id="messageTextArea"></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+</div>

@@ -1,7 +1,7 @@
 package nl.andrewl.coyotecredit.ctl;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
+import nl.andrewl.coyotecredit.ctl.dto.TransferPayload;
 import nl.andrewl.coyotecredit.model.User;
 import nl.andrewl.coyotecredit.service.AccountService;
 import org.springframework.http.HttpStatus;
@@ -11,8 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Map;
 
 @Controller
 @RequestMapping(path = "/accounts/{accountId}")
@@ -42,6 +40,18 @@ public class AccountPage {
 	@PostMapping(path = "/editBalances")
 	public String postEditBalances(@PathVariable long accountId, @AuthenticationPrincipal User user, @RequestParam MultiValueMap<String, String> paramMap) {
 		accountService.editBalances(accountId, user, paramMap);
+		return "redirect:/accounts/" + accountId;
+	}
+
+	@GetMapping(path = "/transfer")
+	public String getTransferPage(Model model, @PathVariable long accountId, @AuthenticationPrincipal User user) {
+		model.addAttribute("balances", accountService.getTransferData(accountId, user));
+		return "account/transfer";
+	}
+
+	@PostMapping(path = "/transfer")
+	public String postTransfer(@PathVariable long accountId, @ModelAttribute TransferPayload payload, @AuthenticationPrincipal User user) {
+		accountService.transfer(accountId, user, payload);
 		return "redirect:/accounts/" + accountId;
 	}
 }

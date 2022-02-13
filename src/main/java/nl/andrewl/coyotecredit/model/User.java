@@ -3,10 +3,13 @@ package nl.andrewl.coyotecredit.model;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,15 +32,27 @@ public class User implements UserDetails {
 	@Column(nullable = false)
 	private String passwordHash;
 
+	@Column(nullable = false)
+	private String email;
+
+	@Column(nullable = false)
+	@Setter
+	private boolean activated = false;
+
+	@Column(nullable = false, updatable = false)
+	private LocalDateTime createdAt;
+
 	/**
 	 * The set of accounts this user has.
 	 */
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Account> accounts;
 
-	public User(String username, String passwordHash) {
+	public User(String username, String passwordHash, String email) {
 		this.username = username;
 		this.passwordHash = passwordHash;
+		this.email = email;
+		this.createdAt = LocalDateTime.now(ZoneOffset.UTC);
 		this.accounts = new HashSet<>();
 	}
 
@@ -75,6 +90,6 @@ public class User implements UserDetails {
 
 	@Override
 	public boolean isEnabled() {
-		return true;
+		return this.activated;
 	}
 }

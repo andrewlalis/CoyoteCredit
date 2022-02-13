@@ -8,28 +8,35 @@
 <div id="content" class="container">
     <h1>Account <span th:text="${account.number()}"></span></h1>
     <p>In <a th:href="@{/exchanges/{id}(id=${account.exchange().id()})}" th:text="${account.exchange().name()}"></a></p>
-    <p>Total value of <span th:text="${account.totalBalance() + ' ' + account.exchange().primaryTradeable()}"></span></p>
+    <p>Total value of <span class="currency" th:text="${account.totalBalance()}"></span>&nbsp;<span th:text="${account.exchange().primaryTradeable()}"></span></p>
 
     <h3>Overview</h3>
 
     <table class="table">
         <thead>
             <tr>
-                <th>Currency</th>
+                <th>Asset</th>
+                <th>Type</th>
                 <th>Balance</th>
             </tr>
         </thead>
         <tbody>
             <tr th:each="bal : ${account.balances()}">
                 <td th:text="${bal.symbol()}"></td>
-                <td th:text="${bal.amount()}"></td>
+                <td th:text="${bal.type()}"></td>
+                <td class="currency" th:text="${bal.amount()}"></td>
             </tr>
         </tbody>
     </table>
 
-    <h3>Recent Transactions</h3>
-    <table class="table">
-        <thead>
+    <a class="btn btn-success" th:href="@{/trade/{account}(account=${account.id()})}">Trade</a>
+    <a class="btn btn-success" th:href="@{/accounts/{aId}/transfer(aId=${account.id()})}">Transfer</a>
+    <a class="btn btn-primary" th:if="${account.userAdmin()}" th:href="@{/accounts/{aId}/editBalances(aId=${account.id()})}">Edit Balances</a>
+
+    <div th:if="${!account.recentTransactions().isEmpty()}">
+        <h3>Recent Transactions</h3>
+        <table class="table">
+            <thead>
             <tr>
                 <th>From</th>
                 <th>Amount From</th>
@@ -37,18 +44,16 @@
                 <th>Amount To</th>
                 <th>Timestamp</th>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             <tr th:each="tx : ${account.recentTransactions()}">
                 <td th:text="${tx.from().name()}"></td>
-                <td th:text="${tx.fromAmount()}"></td>
+                <td class="currency" th:text="${tx.fromAmount()}"></td>
                 <td th:text="${tx.to().name()}"></td>
-                <td th:text="${tx.toAmount()}"></td>
+                <td class="currency" th:text="${tx.toAmount()}"></td>
                 <td th:text="${tx.timestamp()}"></td>
             </tr>
-        </tbody>
-    </table>
-
-    <a class="btn btn-success" th:href="@{/trade/{account}(account=${account.id()})}">Trade</a>
-    <a class="btn btn-primary" th:if="${account.userAdmin()}" th:href="@{/accounts/{aId}/editBalances(aId=${account.id()})}">Edit Balances</a>
+            </tbody>
+        </table>
+    </div>
 </div>

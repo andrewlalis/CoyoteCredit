@@ -1,17 +1,12 @@
 package nl.andrewl.coyotecredit.service;
 
 import lombok.RequiredArgsConstructor;
-import nl.andrewl.coyotecredit.ctl.dto.BalanceData;
-import nl.andrewl.coyotecredit.ctl.dto.ExchangeData;
-import nl.andrewl.coyotecredit.ctl.dto.FullAccountData;
-import nl.andrewl.coyotecredit.ctl.dto.TransactionData;
+import nl.andrewl.coyotecredit.ctl.dto.*;
 import nl.andrewl.coyotecredit.dao.AccountRepository;
 import nl.andrewl.coyotecredit.dao.TradeableRepository;
 import nl.andrewl.coyotecredit.dao.TransactionRepository;
-import nl.andrewl.coyotecredit.model.Account;
-import nl.andrewl.coyotecredit.model.Balance;
-import nl.andrewl.coyotecredit.model.Tradeable;
-import nl.andrewl.coyotecredit.model.User;
+import nl.andrewl.coyotecredit.dao.TransferRepository;
+import nl.andrewl.coyotecredit.model.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,6 +24,61 @@ public class AccountService {
 	private final AccountRepository accountRepository;
 	private final TransactionRepository transactionRepository;
 	private final TradeableRepository tradeableRepository;
+	private final TransferRepository transferRepository;
+
+	@Transactional(readOnly = true)
+	public List<BalanceData> getTransferData(long accountId, User user) {
+		Account account = accountRepository.findById(accountId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		if (!account.getUser().getId().equals(user.getId())) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+		return account.getBalances().stream()
+				.filter(b -> b.getAmount().compareTo(BigDecimal.ZERO) > 0)
+				.map(b -> new BalanceData(
+						b.getTradeable().getId(),
+						b.getTradeable().getSymbol(),
+						b.getTradeable().getType().name(),
+						b.getAmount().toPlainString()
+				))
+				.sorted(Comparator.comparing(BalanceData::symbol))
+				.toList();
+	}
+
+	@Transactional
+	public void transfer(long accountId, User user, TransferPayload payload) {
+		Account sender = accountRepository.findById(accountId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		if (!sender.getUser().getId().equals(user.getId())) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+		Account recipient = accountRepository.findByNumber(payload.recipientNumber())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown recipient."));
+		Tradeable tradeable = tradeableRepository.findById(payload.tradeableId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown tradeable asset."));
+		BigDecimal amount = new BigDecimal(payload.amount());
+		if (amount.compareTo(BigDecimal.ZERO) <= 0) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid amount. Should be positive.");
+		Balance senderBalance = sender.getBalanceForTradeable(tradeable);
+		if (senderBalance == null || senderBalance.getAmount().compareTo(amount) < 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not enough funds to transfer.");
+		}
+		Balance recipientBalance = recipient.getBalanceForTradeable(tradeable);
+		if (recipientBalance == null) {
+			recipientBalance = new Balance(recipient, tradeable, BigDecimal.ZERO);
+			recipient.getBalances().add(recipientBalance);
+		}
+		senderBalance.setAmount(senderBalance.getAmount().subtract(amount));
+		recipientBalance.setAmount(recipientBalance.getAmount().add(amount));
+		accountRepository.save(sender);
+		accountRepository.save(recipient);
+		transferRepository.save(new Transfer(
+				sender.getNumber(),
+				recipient.getNumber(),
+				tradeable,
+				amount,
+				payload.message()
+		));
+	}
 
 	public static record AccountData (
 			long id,
@@ -71,10 +121,15 @@ public class AccountService {
 						account.getExchange().getPrimaryTradeable().getSymbol()
 				),
 				account.getBalances().stream()
-						.map(b -> new BalanceData(b.getTradeable().getId(), b.getTradeable().getSymbol(), b.getAmount().toPlainString()))
+						.map(b -> new BalanceData(
+								b.getTradeable().getId(),
+								b.getTradeable().getSymbol(),
+								b.getTradeable().getType().name(),
+								b.getAmount().toPlainString()
+						))
 						.sorted(Comparator.comparing(BalanceData::symbol))
 						.toList(),
-				account.getTotalBalance().toPlainString(),
+				TradeableData.DECIMAL_FORMAT.format(account.getTotalBalance()),
 				transactionData
 		);
 	}

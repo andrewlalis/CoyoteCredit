@@ -1,0 +1,31 @@
+@font-face {
+    font-family: SpaceMono;
+    src: url("/static/font/SpaceMono-Regular.ttf");
+    font-style: normal;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: SpaceMono;
+    src: url("/static/font/SpaceMono-Italic.ttf");
+    font-style: italic;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: SpaceMono;
+    src: url("/static/font/SpaceMono-Bold.ttf");
+    font-style: normal;
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: SpaceMono;
+    src: url("/static/font/SpaceMono-BoldItalic.ttf");
+    font-style: italic;
+    font-weight: bold;
+}
+
+.currency {
+    font-family: SpaceMono, monospace;
+}

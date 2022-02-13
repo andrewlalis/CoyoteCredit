@@ -13,15 +13,19 @@
     <form th:href="@{/exchanges/{eId}/addAccount(eId=${exchangeId})}" th:method="post">
         <div class="mb-3">
             <label for="nameInput" class="form-label">Name</label>
-            <input id="nameInput" type="text" class="form-control" name="name"/>
+            <input id="nameInput" type="text" class="form-control" name="name" required/>
         </div>
         <div class="mb-3">
             <label for="usernameInput" class="form-label">Username</label>
-            <input id="usernameInput" type="text" class="form-control" name="username"/>
+            <input id="usernameInput" type="text" class="form-control" name="username" required/>
+        </div>
+        <div class="mb-3">
+            <label for="emailInput" class="form-label">Email</label>
+            <input id="emailInput" type="email" class="form-control" name="email" required/>
         </div>
         <div class="mb-3">
             <label for="passwordInput" class="form-label">Password</label>
-            <input id="passwordInput" type="password" class="form-control" name="password"/>
+            <input id="passwordInput" type="password" class="form-control" name="password" required/>
         </div>
         <input type="hidden" name="_csrf" th:value="${_csrf.getToken()}"/>
         <button type="submit" class="btn btn-primary">Submit</button>

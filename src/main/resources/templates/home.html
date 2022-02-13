@@ -6,15 +6,19 @@
 >
 
 <div id="content" class="container">
-    <h1>Welcome!</h1>
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <h1 class="display-4">Welcome to Coyote Credit</h1>
 
-    <h3>Your Accounts:</h3>
-    <ul>
-        <li th:each="account : ${accounts}">
-            <a th:href="@{/accounts/{id}(id=${account.id()})}">
-                <span th:text="${account.accountNumber()}"></span> @
-                <span th:text="${account.exchangeName()}"></span>
-            </a>
-        </li>
-    </ul>
+            <p class="lead">
+                A simulated asset trading platform developed for building a stronger understanding of investment and wealth management.
+            </p>
+
+            <hr>
+
+            <p>
+                You can visit the <a th:href="@{/exchanges}">Exchanges</a> page to view a list of exchanges that you're participating in.
+            </p>
+        </div>
+    </div>
 </div>

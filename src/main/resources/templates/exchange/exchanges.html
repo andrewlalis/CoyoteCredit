@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Exchanges', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1>Exchanges</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Primary Asset</th>
+                <th>Account</th>
+                <th>Estimated Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="ed : ${exchangeData}">
+                <td>
+                    <a th:text="${ed.exchange().name()}" th:href="@{/exchanges/{eId}(eId=${ed.exchange().id()})}"></a>
+                </td>
+                <td th:text="${ed.exchange().primaryTradeable()}"></td>
+                <td>
+                    <a th:text="${ed.account().number()}" th:href="@{/accounts/{aId}(aId=${ed.account().id()})}"></a>
+                </td>
+                <td class="currency" th:text="${ed.account().totalBalance()}"></td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        Use this page to view a list of all exchanges you're participating in. Click on the <strong>name</strong> of the exchange to view its page, and click on your <strong>account</strong> number to view your account information for a given exchange. The <strong>estimated balance</strong> shown in this overview may not be completely accurate. Navigate to your account page for a complete overview of your current account balances for stocks, fiat currencies, and more.
+    </p>
+</div>
