@@ -19,7 +19,7 @@ public record TransactionData(
 				t.getFromAmount().toPlainString(),
 				new TradeableData(t.getTo()),
 				t.getToAmount().toPlainString(),
-				t.getTimestamp().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+				t.getTimestamp().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " UTC"
 		);
 	}
 }

@@ -11,7 +11,10 @@ public record TradeableData(
 		String marketPriceUsd,
 		String formattedPriceUsd,
 		String name,
-		String description
+		String description,
+
+		Long exchangeId,
+		String exchangeName
 ) {
 	public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.00");
 
@@ -23,7 +26,9 @@ public record TradeableData(
 				t.getMarketPriceUsd().toPlainString(),
 				DECIMAL_FORMAT.format(t.getMarketPriceUsd()),
 				t.getName(),
-				t.getDescription()
+				t.getDescription(),
+				t.getExchange() == null ? null : t.getExchange().getId(),
+				t.getExchange() == null ? null : t.getExchange().getName()
 		);
 	}
 }

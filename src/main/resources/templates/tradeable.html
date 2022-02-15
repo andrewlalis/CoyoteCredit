@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Account', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1>
+        <span class="display-4" th:text="${tradeable.name()}"></span>
+        <small class="text-muted" th:text="${tradeable.symbol()}"></small>
+    </h1>
+    <p class="lead" th:text="${tradeable.description()}"></p>
+    <p>
+        Currently trading at a market price of
+        <span class="monospace" th:text="${tradeable.formattedPriceUsd()}"></span>
+        <strong>USD</strong> for one <strong th:text="${tradeable.symbol()}"></strong>.
+    </p>
+    <p th:if="${tradeable.exchangeId() != null}" class="text-muted">
+        This asset was defined in, and is only tradeable within
+        <a class="link-secondary" th:href="@{/exchanges/{eId}(eId=${tradeable.exchangeId()})}" th:text="${tradeable.exchangeName()}"></a>.
+    </p>
+</div>

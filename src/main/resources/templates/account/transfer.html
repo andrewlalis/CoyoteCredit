@@ -5,6 +5,10 @@
         th:replace="~{layout/basic_page :: layout (title='Add Account', content=~{::#content})}"
 >
 <div id="content" class="container">
+    <h1 class="display-4">Transfer</h1>
+    <p class="lead">
+        Transfer funds to other accounts.
+    </p>
     <form th:action="@{/accounts/{aId}/transfer(aId=${accountId})}" th:method="post">
         <div class="mb-3">
             <label for="recipientNumberInput" class="form-label">Recipient Account Number</label>
@@ -26,8 +30,13 @@
         </div>
         <div class="mb-3">
             <label for="messageTextArea" class="form-label">Message</label>
-            <textarea class="form-control" name="message" rows="3" id="messageTextArea"></textarea>
+            <small class="text-muted">Note: Message text is readable by administrators.</small>
+            <textarea class="form-control" name="message" rows="3" id="messageTextArea" maxlength="1024"></textarea>
         </div>
-        <button type="submit" class="btn btn-success">Submit</button>
+        <button type="submit" class="btn btn-primary btn-lg">Transfer</button>
+
+        <p class="text-danger fw-bold">
+            Warning! All transfers are final, and cannot be reversed.
+        </p>
     </form>
 </div>

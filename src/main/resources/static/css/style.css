@@ -26,6 +26,34 @@
     font-weight: bold;
 }
 
-.currency {
+:root {
+    --color-dark-peach: #f79256;
+    --color-light-peach: #fbd1a2;
+    --color-mint: #7dffb6;
+    --color-faded-blue: #1d4e89;
+    --color-light-blue: #00b2ca;
+}
+
+body{
+    background-color: black;
+    color: white;
+}
+
+.monospace {
     font-family: SpaceMono, monospace;
+}
+
+.header-bar {
+    --bs-bg-opacity: 1;
+    background-color: var(--color-faded-blue);
+    background-image: none;
+}
+
+.colored-link {
+    text-decoration: none;
+    color: var(--color-light-peach);
+}
+
+.colored-link:hover {
+    color: var(--color-mint);
 }

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Home', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <div class="row justify-content-center">
+        <div class="col-sm-6">
+            <h1 class="text-center">
+                <span class="display-4">Error</span>
+                <small class="text-muted" th:text="${statusCode}"></small>
+            </h1>
+            <p class="lead" th:text="${message}"></p>
+        </div>
+    </div>
+</div>

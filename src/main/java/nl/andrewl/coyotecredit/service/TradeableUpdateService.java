@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
@@ -40,7 +41,16 @@ public class TradeableUpdateService {
 	private String polygonApiKey;
 	private static final int POLYGON_API_TIMEOUT = 15;
 
+	@PostConstruct
+	public void startupUpdate() {
+		updatePublicTradeables();
+	}
+
 	@Scheduled(cron = "@midnight")
+	public void scheduledUpdate() {
+		updatePublicTradeables();
+	}
+
 	public void updatePublicTradeables() {
 		List<Tradeable> publicTradeables = tradeableRepository.findAllByExchangeNull();
 		long delay = 5;

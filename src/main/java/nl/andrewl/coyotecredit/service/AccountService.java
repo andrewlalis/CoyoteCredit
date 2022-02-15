@@ -7,6 +7,7 @@ import nl.andrewl.coyotecredit.dao.TradeableRepository;
 import nl.andrewl.coyotecredit.dao.TransactionRepository;
 import nl.andrewl.coyotecredit.dao.TransferRepository;
 import nl.andrewl.coyotecredit.model.*;
+import nl.andrewl.coyotecredit.util.AccountNumberUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -52,7 +53,14 @@ public class AccountService {
 		if (!sender.getUser().getId().equals(user.getId())) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
-		Account recipient = accountRepository.findByNumber(payload.recipientNumber())
+		String recipientNumber = payload.recipientNumber().trim();
+		if (!AccountNumberUtils.isValid(recipientNumber)) {
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST,
+					"The recipient number \"" + recipientNumber + "\" is not valid. Should be of the form 1234-1234-1234-1234."
+			);
+		}
+		Account recipient = accountRepository.findByNumber(recipientNumber)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown recipient."));
 		Tradeable tradeable = tradeableRepository.findById(payload.tradeableId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown tradeable asset."));
@@ -115,6 +123,7 @@ public class AccountService {
 				account.getName(),
 				account.isAdmin(),
 				userAccount.isAdmin(),
+				account.getUser().getId().equals(user.getId()),
 				new ExchangeData(
 						account.getExchange().getId(),
 						account.getExchange().getName(),

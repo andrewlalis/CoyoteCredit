@@ -5,13 +5,16 @@
         th:replace="~{layout/basic_page :: layout (title='Trade', content=~{::#content})}"
 >
 <div id="content" class="container">
-    <h1>Trade</h1>
+    <h1 class="display-4">Trade</h1>
+    <p class="lead">
+        Trade currencies, cryptocurrencies, and stocks in this account's exchange.
+    </p>
 
     <form id="tradeForm" th:action="@{/trade/{account}(account=${data.accountId()})}" method="post">
         <input type="hidden" id="exchangeIdInput" th:value="${data.exchangeId()}"/>
         <input type="hidden" id="accountIdInput" th:value="${data.accountId()}"/>
         <div class="mb-3">
-            <label for="sellTradeableSelect" class="form-label">Tradeable to Sell</label>
+            <label for="sellTradeableSelect" class="form-label">Asset to Sell</label>
             <select id="sellTradeableSelect" class="form-select">
                 <option selected hidden>Choose something to sell</option>
                 <option
@@ -33,7 +36,7 @@
         </div>
 
         <div class="mb-3">
-            <label for="buyTradeableSelect" class="form-label">Tradeable to Buy</label>
+            <label for="buyTradeableSelect" class="form-label">Asset to Buy</label>
             <select id="buyTradeableSelect" class="form-select">
                 <option value="" selected disabled hidden>Choose something to buy</option>
                 <option
@@ -57,7 +60,20 @@
         <input type="hidden" name="buyTradeableId"/>
         <input type="hidden" name="value"/>
 
-        <button id="submitButton" type="button" class="btn btn-primary">Submit</button>
+        <p class="text-muted">
+            Select an asset to sell, and an asset to buy, and then simply enter a
+            value that you wish to sell or buy. Note that some assets, like stocks,
+            may only be bought and sold in whole-number values. Also note that
+            prices shown in this trading interface may not be 100% accurate, and you
+            should consult with the information shown on your exchange's page for
+            the exact exchange rates.
+        </p>
+
+        <button id="submitButton" type="button" class="btn btn-primary btn-lg">Trade</button>
+
+        <p class="text-danger fw-bold">
+            Warning! All trades are final, and cannot be reversed once the transaction is submitted.
+        </p>
     </form>
 
     <script src="/static/js/trade.js"></script>

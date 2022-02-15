@@ -85,11 +85,23 @@ public class Account {
 		return null;
 	}
 
+	/**
+	 * Gets the total account balance, in terms of the exchange's primary asset.
+	 * @return The total balance in terms of the exchange's primary asset.
+	 */
 	public BigDecimal getTotalBalance() {
-		BigDecimal totalUsd = new BigDecimal(0);
+		return getTotalBalanceUsd().divide(getExchange().getPrimaryTradeable().getMarketPriceUsd(), RoundingMode.HALF_UP);
+	}
+
+	/**
+	 * Gets the total account balance, in USD.
+	 * @return The total balance, in USD.
+	 */
+	public BigDecimal getTotalBalanceUsd() {
+		BigDecimal totalUsd = BigDecimal.ZERO;
 		for (var bal : getBalances()) {
 			totalUsd = totalUsd.add(bal.getTradeable().getMarketPriceUsd().multiply(bal.getAmount()));
 		}
-		return totalUsd.divide(getExchange().getPrimaryTradeable().getMarketPriceUsd(), RoundingMode.HALF_UP);
+		return totalUsd;
 	}
 }

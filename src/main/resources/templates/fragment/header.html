@@ -2,7 +2,6 @@
 <html
         lang="en"
         xmlns:th="http://www.thymeleaf.org"
-        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 >
 <head>
     <meta charset="UTF-8">
@@ -10,9 +9,12 @@
 </head>
 <body>
 
-<nav th:fragment="header" class="navbar navbar-expand-lg navbar-light bg-light">
+<nav th:fragment="header" class="navbar navbar-expand-lg navbar-dark header-bar">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/">Coyote Credit</a>
+        <a class="navbar-brand" href="/">
+            <img src="/static/images/icon_256.png" alt="Coyote Credit" height="24" class="d-inline-block align-text-top"/>
+            Coyote Credit
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -29,7 +31,7 @@
                 </li>
             </ul>
             <form class="d-flex" th:action="@{/logout}" th:method="post">
-                <button class="btn btn-outline-success" type="submit">Logout</button>
+                <button class="btn btn-dark" type="submit">Logout</button>
             </form>
         </div>
     </div>

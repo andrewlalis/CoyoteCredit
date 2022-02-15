@@ -10,6 +10,8 @@ public record FullExchangeData (
 		String name,
 		TradeableData primaryTradeable,
 		List<TradeableData> supportedTradeables,
+		String totalMarketValue,
+		int accountCount,
 		// Account info that's needed for determining if it's possible to do some actions.
 		boolean accountAdmin,
 		long accountId

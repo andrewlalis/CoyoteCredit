@@ -35,8 +35,14 @@ public class ExchangeService {
 	public FullExchangeData getData(long exchangeId, User user) {
 		Exchange e = exchangeRepository.findById(exchangeId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-		Account account = accountRepository.findByUserAndExchange(user, e)
+		Account userAccount = accountRepository.findByUserAndExchange(user, e)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		BigDecimal totalValue = BigDecimal.ZERO;
+		int accountCount = 0;
+		for (var acc : accountRepository.findAllByExchange(e)) {
+			totalValue = totalValue.add(acc.getTotalBalance());
+			accountCount++;
+		}
 		return new FullExchangeData(
 				e.getId(),
 				e.getName(),
@@ -45,8 +51,10 @@ public class ExchangeService {
 						.map(TradeableData::new)
 						.sorted(Comparator.comparing(TradeableData::symbol))
 						.toList(),
-				account.isAdmin(),
-				account.getId()
+				TradeableData.DECIMAL_FORMAT.format(totalValue),
+				accountCount,
+				userAccount.isAdmin(),
+				userAccount.getId()
 		);
 	}
 

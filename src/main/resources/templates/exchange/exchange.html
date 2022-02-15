@@ -5,14 +5,28 @@
         th:replace="~{layout/basic_page :: layout (title='Exchange', content=~{::#content})}"
 >
 <div id="content" class="container">
-    <h1 th:text="${exchange.name()}"></h1>
+    <h1 class="display-4" th:text="${exchange.name()}"></h1>
 
-    <p>
-        Primary asset: <span th:text="${exchange.primaryTradeable().name()}"></span>
-    </p>
+    <div class="card text-white bg-dark mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Overview</h5>
+            <dl class="row">
+                <dt class="col-sm-6">Primary Currency</dt>
+                <dd class="col-sm-6">
+                    <a class="colored-link" th:href="@{/tradeables/{tId}(tId=${exchange.primaryTradeable().id()})}" th:text="${exchange.primaryTradeable().name()}"></a>
+                </dd>
+                <dt class="col-sm-6">Total Market Value</dt>
+                <dd class="col-sm-6">
+                    <span class="monospace" th:text="${exchange.totalMarketValue()}"></span>&nbsp;<span th:text="${exchange.primaryTradeable().symbol()}"></span>
+                </dd>
+                <dt class="col-sm-6">Number of Accounts</dt>
+                <dd class="col-sm-6" th:text="${exchange.accountCount()}"></dd>
+            </dl>
+        </div>
+    </div>
 
     <h3>Tradeable Assets</h3>
-    <table class="table">
+    <table class="table table-dark">
         <thead>
             <tr>
                 <th>Symbol</th>
@@ -25,7 +39,7 @@
             <tr th:each="tradeable : ${exchange.supportedTradeables()}">
                 <td th:text="${tradeable.symbol()}"></td>
                 <td th:text="${tradeable.type()}"></td>
-                <td class="currency" th:text="${tradeable.formattedPriceUsd()}"></td>
+                <td class="monospace" th:text="${tradeable.formattedPriceUsd()}"></td>
                 <td th:text="${tradeable.name()}"></td>
             </tr>
         </tbody>
