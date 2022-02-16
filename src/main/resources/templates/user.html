@@ -19,4 +19,22 @@
             </tr>
         </tbody>
     </table>
+
+    <div class="card text-white bg-dark mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Exchange Invitations</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item list-group-item-dark" th:each="invite : ${user.exchangeInvitations()}">
+                <span th:text="${invite.exchangeName()}"></span>
+
+                <form th:action="@{/exchanges/{eId}/rejectInvite/{iId}(eId=${invite.exchangeId()}, iId=${invite.id()})}" method="post" class="float-end">
+                    <button type="submit" class="btn btn-danger">Reject</button>
+                </form>
+                <form th:action="@{/exchanges/{eId}/acceptInvite/{iId}(eId=${invite.exchangeId()}, iId=${invite.id()})}" method="post" class="float-end">
+                    <button type="submit" class="btn btn-success">Accept</button>
+                </form>
+            </li>
+        </ul>
+    </div>
 </div>

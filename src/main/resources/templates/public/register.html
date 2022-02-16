@@ -16,7 +16,15 @@
 
                 <div class="mb-3">
                     <label for="emailInput" class="form-label">Email</label>
-                    <input name="email" id="emailInput" class="form-control" type="email" required/>
+                    <input
+                            name="email"
+                            id="emailInput"
+                            class="form-control"
+                            type="email"
+                            required
+                            th:readonly="${inviteUserEmail != null}"
+                            th:value="${inviteUserEmail == null ? '' : inviteUserEmail}"
+                    />
                 </div>
 
                 <div class="mb-3">
@@ -24,7 +32,21 @@
                     <input name="password" id="passwordInput" class="form-control" type="password" required/>
                 </div>
 
-                <input type="submit" class="btn btn-primary" value="Register">
+                <div class="mb-3" th:if="${inviteCode != null}">
+                    <label for="accountNameInput" class="form-label">Account Name</label>
+                    <small class="text-muted">
+                        You have been invited by <span th:text="${inviteSenderName}"></span> to join <span th:text="${inviteExchangeName}"></span>.
+                    </small>
+                    <input name="accountName" id="accountNameInput" class="form-control" type="text" required/>
+                    <input name="inviteCode" type="hidden" th:value="${inviteCode}"/>
+                </div>
+
+                <input type="submit" class="btn btn-primary mb-3" value="Register">
+
+                <p class="alert alert-dark">
+                    After registering, you will receive an email with a verification link. Please
+                    click that link to verify your account before attempting to log in.
+                </p>
             </form>
         </div>
     </div>

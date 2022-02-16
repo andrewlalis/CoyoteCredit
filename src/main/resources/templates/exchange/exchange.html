@@ -6,6 +6,7 @@
 >
 <div id="content" class="container">
     <h1 class="display-4" th:text="${exchange.name()}"></h1>
+    <p class="lead" th:if="${exchange.description() != null && !exchange.description().isBlank()}" th:text="${exchange.description()}"></p>
 
     <div class="card text-white bg-dark mb-3">
         <div class="card-body">
@@ -22,31 +23,39 @@
                 <dt class="col-sm-6">Number of Accounts</dt>
                 <dd class="col-sm-6" th:text="${exchange.accountCount()}"></dd>
             </dl>
+            <a class="btn btn-primary" th:href="@{/accounts/{aId}(aId=${exchange.accountId()})}">My Account</a>
         </div>
     </div>
 
-    <h3>Tradeable Assets</h3>
-    <table class="table table-dark">
-        <thead>
-            <tr>
-                <th>Symbol</th>
-                <th>Type</th>
-                <th>Price (in USD)</th>
-                <th>Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="tradeable : ${exchange.supportedTradeables()}">
-                <td th:text="${tradeable.symbol()}"></td>
-                <td th:text="${tradeable.type()}"></td>
-                <td class="monospace" th:text="${tradeable.formattedPriceUsd()}"></td>
-                <td th:text="${tradeable.name()}"></td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="card text-white bg-dark mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Tradeable Assets</h5>
+            <table class="table table-dark">
+                <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Type</th>
+                    <th>Price (in USD)</th>
+                    <th>Name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="tradeable : ${exchange.supportedTradeables()}">
+                    <td th:text="${tradeable.symbol()}"></td>
+                    <td th:text="${tradeable.type()}"></td>
+                    <td class="monospace" th:text="${tradeable.formattedPriceUsd()}"></td>
+                    <td th:text="${tradeable.name()}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    <div>
-        <a class="btn btn-primary" th:href="@{/accounts/{aId}(aId=${exchange.accountId()})}">My Account</a>
-        <a class="btn btn-primary" th:if="${exchange.accountAdmin()}" th:href="@{/exchanges/{eId}/accounts(eId=${exchange.id()})}">All Accounts</a>
+    <div class="card text-white bg-dark mb-3" th:if="${exchange.accountAdmin()}">
+        <div class="card-body">
+            <h5 class="card-title">Administrator Tools</h5>
+            <a class="btn btn-primary" th:href="@{/exchanges/{eId}/accounts(eId=${exchange.id()})}">View All Accounts</a>
+            <a class="btn btn-secondary" th:href="@{/exchanges/{eId}/edit(eId=${exchange.id()})}">Edit Exchange Settings</a>
+        </div>
     </div>
 </div>

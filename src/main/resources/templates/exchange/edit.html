@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Edit Exchange', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1 class="display-4">Edit Exchange Settings</h1>
+
+    <form th:action="@{/exchanges/{eId}/edit(eId=${exchange.id()})}" th:method="post">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="nameInput" class="form-label">Name</label>
+                    <input type="text" name="name" id="nameInput" class="form-control" th:value="${exchange.name()}"/>
+                </div>
+                <div class="mb-3">
+                    <label for="descriptionInput" class="form-label">Description</label>
+                    <textarea id="descriptionInput" name="description" class="form-control" rows="3" maxlength="1024" th:text="${exchange.description()}"></textarea>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" name="publiclyAccessible" id="publiclyAccessibleCheck" th:checked="${exchange.publiclyAccessible()}"/>
+                    <input type="hidden" value="on" name="_publiclyAccessible"/>
+                    <label class="form-check-label" for="publiclyAccessibleCheck">Publicly Accessible</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label for="primaryTradeableIdSelect" class="form-label">Primary Currency</label>
+                <select name="primaryTradeableId" id="primaryTradeableIdSelect" class="form-select">
+                    <option
+                        th:each="tb : ${exchange.supportedTradeables()}"
+                        th:if="${tb.type().equals('FIAT') || tb.type().equals('CRYPTO')}"
+                        th:text="${tb.symbol() + ' ' + tb.name()}"
+                        th:value="${tb.id()}"
+                        th:selected="${tb.id() == exchange.primaryTradeable().id()}"
+                    ></option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="primaryBackgroundColorInput" class="form-label">Primary Background Color</label>
+                    <input
+                            name="primaryBackgroundColor"
+                            id="primaryBackgroundColorInput"
+                            type="color"
+                            class="form-control form-control-color"
+                            th:value="${exchange.primaryBackgroundColor()}"
+                    />
+                </div>
+                <div class="mb-3">
+                    <label for="secondaryBackgroundColorInput" class="form-label">Secondary Background Color</label>
+                    <input
+                            name="secondaryBackgroundColor"
+                            id="secondaryBackgroundColorInput"
+                            type="color"
+                            class="form-control form-control-color"
+                            th:value="${exchange.secondaryBackgroundColor()}"
+                    />
+                </div>
+                <div class="mb-3">
+                    <label for="primaryForegroundColorInput" class="form-label">Primary Foreground Color</label>
+                    <input
+                            name="primaryForegroundColor"
+                            id="primaryForegroundColorInput"
+                            type="color"
+                            class="form-control form-control-color"
+                            th:value="${exchange.primaryForegroundColor()}"
+                    />
+                </div>
+                <div class="mb-3">
+                    <label for="secondaryForegroundColorInput" class="form-label">Secondary Foreground Color</label>
+                    <input
+                            name="secondaryForegroundColor"
+                            id="secondaryForegroundColorInput"
+                            type="color"
+                            class="form-control form-control-color"
+                            th:value="${exchange.secondaryForegroundColor()}"
+                    />
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+</div>

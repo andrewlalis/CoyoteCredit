@@ -3,6 +3,7 @@ package nl.andrewl.coyotecredit.model;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -23,14 +24,33 @@ public class Exchange {
 	/**
 	 * The name for this exchange.
 	 */
-	@Column(nullable = false)
+	@Column(nullable = false) @Setter
 	private String name;
 
 	/**
 	 * The primary tradeable that's used by this exchange.
 	 */
-	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY) @Setter
 	private Tradeable primaryTradeable;
+
+	/**
+	 * A user-provided description for the exchange.
+	 */
+	@Column(length = 1024) @Setter
+	private String description;
+
+	@Column(nullable = false) @Setter
+	private boolean publiclyAccessible;
+
+	// Colors:
+	@Column @Setter
+	private String primaryBackgroundColor;
+	@Column @Setter
+	private String secondaryBackgroundColor;
+	@Column @Setter
+	private String primaryForegroundColor;
+	@Column @Setter
+	private String secondaryForegroundColor;
 
 	/**
 	 * The set of tradeables that this exchange allows users to interact with.

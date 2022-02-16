@@ -5,21 +5,24 @@ import nl.andrewl.coyotecredit.ctl.dto.*;
 import nl.andrewl.coyotecredit.dao.*;
 import nl.andrewl.coyotecredit.model.*;
 import nl.andrewl.coyotecredit.util.AccountNumberUtils;
+import nl.andrewl.coyotecredit.util.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +32,12 @@ public class ExchangeService {
 	private final TransactionRepository transactionRepository;
 	private final TradeableRepository tradeableRepository;
 	private final UserRepository userRepository;
+	private final ExchangeInvitationRepository invitationRepository;
+	private final JavaMailSender mailSender;
 	private final PasswordEncoder passwordEncoder;
+
+	@Value("${coyote-credit.base-url}")
+	private String baseUrl;
 
 	@Transactional(readOnly = true)
 	public FullExchangeData getData(long exchangeId, User user) {
@@ -46,7 +54,13 @@ public class ExchangeService {
 		return new FullExchangeData(
 				e.getId(),
 				e.getName(),
+				e.getDescription(),
+				e.isPubliclyAccessible(),
 				new TradeableData(e.getPrimaryTradeable()),
+				e.getPrimaryBackgroundColor(),
+				e.getSecondaryBackgroundColor(),
+				e.getPrimaryForegroundColor(),
+				e.getSecondaryForegroundColor(),
 				e.getAllTradeables().stream()
 						.map(TradeableData::new)
 						.sorted(Comparator.comparing(TradeableData::symbol))
@@ -72,6 +86,7 @@ public class ExchangeService {
 				.sorted(Comparator.comparing(Account::getName))
 				.map(a -> new SimpleAccountData(
 						a.getId(),
+						a.getUser().getId(),
 						a.getNumber(),
 						a.getName(),
 						a.isAdmin(),
@@ -203,9 +218,125 @@ public class ExchangeService {
 		return accountRepository.findAllByUser(user).stream()
 				.map(a -> new ExchangeAccountData(
 						new ExchangeData(a.getExchange().getId(), a.getExchange().getName(), a.getExchange().getPrimaryTradeable().getSymbol()),
-						new SimpleAccountData(a.getId(), a.getNumber(), a.getName(), a.isAdmin(), TradeableData.DECIMAL_FORMAT.format(a.getTotalBalance()))
+						new SimpleAccountData(
+								a.getId(),
+								user.getId(),
+								a.getNumber(),
+								a.getName(),
+								a.isAdmin(),
+								TradeableData.DECIMAL_FORMAT.format(a.getTotalBalance())
+						)
 				))
 				.sorted(Comparator.comparing(d -> d.exchange().name()))
 				.toList();
+	}
+
+	@Transactional
+	public void edit(long exchangeId, EditExchangePayload payload, User user) {
+		Exchange e = exchangeRepository.findById(exchangeId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Account account = accountRepository.findByUserAndExchange(user, e)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		if (!account.isAdmin()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		e.setName(payload.name());
+		e.setDescription(payload.description());
+		Tradeable primaryTradeable = tradeableRepository.findById(payload.primaryTradeableId())
+						.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown primary tradeable currency."));
+		if (!e.getAllTradeables().contains(primaryTradeable)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This exchange doesn't support " + primaryTradeable.getSymbol() + ".");
+		}
+		if (primaryTradeable.getType().equals(TradeableType.STOCK)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid primary tradeable currency. Stocks are not permitted.");
+		}
+		e.setPrimaryTradeable(primaryTradeable);
+		e.setPubliclyAccessible(payload.publiclyAccessible());
+
+		e.setPrimaryBackgroundColor(payload.primaryBackgroundColor());
+		e.setSecondaryBackgroundColor(payload.secondaryBackgroundColor());
+		e.setPrimaryForegroundColor(payload.primaryForegroundColor());
+		e.setSecondaryForegroundColor(payload.secondaryForegroundColor());
+		exchangeRepository.save(e);
+	}
+
+	@Transactional
+	public void inviteUser(long exchangeId, User user, InviteUserPayload payload) {
+		Exchange exchange = exchangeRepository.findById(exchangeId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Account account = accountRepository.findByUserAndExchange(user, exchange)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		if (!account.isAdmin()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		LocalDateTime expiresAt = LocalDateTime.now(ZoneOffset.UTC).plusDays(7);
+		ExchangeInvitation invitation = invitationRepository.save(
+				new ExchangeInvitation(exchange, account, payload.email(), StringUtils.random(64), expiresAt));
+		Optional<User> invitedUser = userRepository.findByEmail(payload.email());
+		if (invitedUser.isEmpty()) {
+			try {
+				sendInvitationEmail(invitation);
+			} catch (MessagingException e) {
+				e.printStackTrace();
+				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not send invitation email.");
+			}
+		}
+	}
+
+	@Transactional
+	public void acceptInvite(long exchangeId, long inviteId, User user) {
+		Exchange exchange = exchangeRepository.findById(exchangeId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		ExchangeInvitation invite = invitationRepository.findById(inviteId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		if (!invite.getUserEmail().equalsIgnoreCase(user.getEmail())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This invite is for someone else.");
+		}
+		if (!invite.getExchange().getId().equals(exchangeId)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This invite is for a different exchange.");
+		}
+		// If the user already has an account, silently delete the invite.
+		if (accountRepository.existsByUserAndExchange(user, exchange)) {
+			invitationRepository.delete(invite);
+		}
+		if (invite.isExpired()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This invite is expired.");
+		}
+		// Create the account.
+		Account account = accountRepository.save(new Account(AccountNumberUtils.generate(), user, user.getUsername(), exchange));
+		invitationRepository.delete(invite);
+		for (var t : exchange.getAllTradeables()) {
+			account.getBalances().add(new Balance(account, t, BigDecimal.ZERO));
+		}
+		accountRepository.save(account);
+	}
+
+	@Transactional
+	public void rejectInvite(long exchangeId, long inviteId, User user) {
+		ExchangeInvitation invite = invitationRepository.findById(inviteId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		if (!invite.getUserEmail().equalsIgnoreCase(user.getEmail())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This invite is for someone else.");
+		}
+		if (!invite.getExchange().getId().equals(exchangeId)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This invite is for a different exchange.");
+		}
+		invitationRepository.delete(invite);
+	}
+
+	private void sendInvitationEmail(ExchangeInvitation invitation) throws MessagingException {
+		MimeMessage msg = mailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg);
+		helper.setFrom("Coyote Credit <noreply@coyote-credit.com>");
+		helper.setTo(invitation.getUserEmail());
+		helper.setSubject("Exchange Invitation");
+		String url = baseUrl + "/register?inviteCode=" + invitation.getCode();
+		helper.setText(String.format(
+				"""
+				<p>You have been invited by %s to join %s on Coyote Credit.
+				Click the link below to register an account.</p>
+				<a href="%s">%s</a>
+				""",
+				invitation.getSender().getName(),
+				invitation.getExchange().getName(),
+				url, url
+		), true);
+		mailSender.send(msg);
 	}
 }

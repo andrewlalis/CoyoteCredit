@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Invite User', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1 class="display-4">Invite User</h1>
+    <p class="lead">
+        Invite someone to join your exchange. If they've already got an account,
+        their account will receive an invitation, or if not, they'll receive an
+        email so they can create an account.
+    </p>
+
+    <form th:href="@{/exchanges/{eId}/inviteUser(eId=${exchangeId})}" th:method="post">
+        <div class="mb-3">
+            <label for="emailInput" class="form-label">Email</label>
+            <input id="emailInput" name="email" type="email" class="form-control" required/>
+        </div>
+        <input type="hidden" name="_csrf" th:value="${_csrf.getToken()}"/>
+        <button type="submit" class="btn btn-primary">Invite</button>
+    </form>
+</div>

@@ -8,7 +8,13 @@ import java.util.List;
 public record FullExchangeData (
 		long id,
 		String name,
+		String description,
+		boolean publiclyAccessible,
 		TradeableData primaryTradeable,
+		String primaryBackgroundColor,
+		String secondaryBackgroundColor,
+		String primaryForegroundColor,
+		String secondaryForegroundColor,
 		List<TradeableData> supportedTradeables,
 		String totalMarketValue,
 		int accountCount,

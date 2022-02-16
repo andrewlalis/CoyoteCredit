@@ -1,12 +1,18 @@
 package nl.andrewl.coyotecredit.service;
 
 import lombok.RequiredArgsConstructor;
+import nl.andrewl.coyotecredit.ctl.dto.InvitationData;
 import nl.andrewl.coyotecredit.ctl.dto.RegisterPayload;
 import nl.andrewl.coyotecredit.ctl.dto.UserData;
+import nl.andrewl.coyotecredit.dao.AccountRepository;
+import nl.andrewl.coyotecredit.dao.ExchangeInvitationRepository;
 import nl.andrewl.coyotecredit.dao.UserActivationTokenRepository;
 import nl.andrewl.coyotecredit.dao.UserRepository;
+import nl.andrewl.coyotecredit.model.Account;
+import nl.andrewl.coyotecredit.model.Balance;
 import nl.andrewl.coyotecredit.model.User;
 import nl.andrewl.coyotecredit.model.UserActivationToken;
+import nl.andrewl.coyotecredit.util.AccountNumberUtils;
 import nl.andrewl.coyotecredit.util.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -20,14 +26,20 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 	private final UserRepository userRepository;
+	private final AccountRepository accountRepository;
 	private final UserActivationTokenRepository activationTokenRepository;
+	private final ExchangeInvitationRepository exchangeInvitationRepository;
 	private final JavaMailSender mailSender;
 	private final PasswordEncoder passwordEncoder;
 
@@ -42,7 +54,13 @@ public class UserService {
 		} else {
 			user = userRepository.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		}
-		return new UserData(user.getId(), user.getUsername(), user.getEmail());
+		List<InvitationData> exchangeInvitations = new ArrayList<>();
+		for (var invitation : exchangeInvitationRepository.findAllByUserEmail(user.getEmail())) {
+			if (invitation.isExpired()) continue;
+			exchangeInvitations.add(new InvitationData(invitation.getId(), invitation.getExchange().getId(), invitation.getExchange().getName()));
+		}
+		exchangeInvitations.sort(Comparator.comparing(InvitationData::id));
+		return new UserData(user.getId(), user.getUsername(), user.getEmail(), exchangeInvitations);
 	}
 
 	@Transactional
@@ -52,6 +70,26 @@ public class UserService {
 		}
 		User user = new User(payload.username(), passwordEncoder.encode(payload.password()), payload.email());
 		user = userRepository.save(user);
+		if (payload.inviteCode() != null) {
+			var invite = exchangeInvitationRepository.findByCode(payload.inviteCode())
+					.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid invitation code."));
+			if (!invite.getUserEmail().equalsIgnoreCase(user.getEmail())) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This invitation code is for somebody else.");
+			}
+			if (invite.isExpired()) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This invitation code is expired.");
+			}
+			exchangeInvitationRepository.delete(invite);
+			Account account = new Account(AccountNumberUtils.generate(), user, payload.accountName(), invite.getExchange());
+			account = accountRepository.save(account);
+			for (var tradeable : invite.getExchange().getAllTradeables()) {
+				account.getBalances().add(new Balance(account, tradeable, BigDecimal.ZERO));
+			}
+			account = accountRepository.save(account);
+			user.getAccounts().add(account);
+			user = userRepository.save(user);
+		}
+
 		String token = StringUtils.random(64);
 		LocalDateTime expiresAt = LocalDateTime.now(ZoneOffset.UTC).plusHours(24);
 		UserActivationToken activationToken = new UserActivationToken(token, user, expiresAt);
