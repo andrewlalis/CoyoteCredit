@@ -6,29 +6,28 @@
 >
 <div id="content" class="container">
     <h1 class="display-4">Exchanges</h1>
-    <table class="table table-dark">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Primary Asset</th>
-                <th>Account</th>
-                <th>Estimated Balance</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="ed : ${exchangeData}">
-                <td>
-                    <a class="colored-link" th:text="${ed.exchange().name()}" th:href="@{/exchanges/{eId}(eId=${ed.exchange().id()})}"></a>
-                </td>
-                <td th:text="${ed.exchange().primaryTradeable()}"></td>
-                <td>
-                    <a class="colored-link" th:text="${ed.account().number()}" th:href="@{/accounts/{aId}(aId=${ed.account().id()})}"></a>
-                </td>
-                <td class="monospace" th:text="${ed.account().totalBalance()}"></td>
-            </tr>
-        </tbody>
-    </table>
-    <p>
+
+    <div class="row row-cols-1 row-cols-sm-3 g-4">
+        <div class="col" th:each="exchange: ${exchangeData}">
+            <div class="card text-white bg-dark">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a class="colored-link" th:href="@{/exchanges/{eId}(eId=${exchange.exchange().id()})}" th:text="${exchange.exchange().name()}"></a>
+                    </h5>
+                    <h6 class="card-subtitle text-muted mb-2">
+                        Est. Account Balance:
+                        <span class="badge bg-secondary">
+                    <span class="font-monospace" th:text="${exchange.account().totalBalance()}"></span>&nbsp;
+                    <a class="colored-link" th:text="${exchange.exchange().primaryTradeable()}" th:href="@{/tradeables/{tId}(tId=${exchange.exchange().primaryTradeableId()})}"></a>
+                </span>
+                    </h6>
+                    <p class="card-text" th:if="${exchange.exchange().description() != null}" th:text="${exchange.exchange().description()}"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p class="mt-3">
         Use this page to view a list of all exchanges you're participating in. Click on the <strong>name</strong> of the exchange to view its page, and click on your <strong>account</strong> number to view your account information for a given exchange. The <strong>estimated balance</strong> shown in this overview may not be completely accurate. Navigate to your account page for a complete overview of your current account balances for stocks, fiat currencies, and more.
     </p>
 </div>

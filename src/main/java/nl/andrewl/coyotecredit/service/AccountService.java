@@ -127,7 +127,9 @@ public class AccountService {
 				new ExchangeData(
 						account.getExchange().getId(),
 						account.getExchange().getName(),
-						account.getExchange().getPrimaryTradeable().getSymbol()
+						account.getExchange().getDescription(),
+						account.getExchange().getPrimaryTradeable().getSymbol(),
+						account.getExchange().getPrimaryTradeable().getId()
 				),
 				account.getBalances().stream()
 						.map(b -> new BalanceData(

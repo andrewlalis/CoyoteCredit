@@ -107,29 +107,6 @@ public class ExchangeService {
 	}
 
 	@Transactional
-	public long addAccount(long exchangeId, User user, AddAccountPayload payload) {
-		Exchange exchange = exchangeRepository.findById(exchangeId)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-		Account account = accountRepository.findByUserAndExchange(user, exchange)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-		if (!account.isAdmin()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-		}
-		User u = userRepository.save(new User(payload.username(), passwordEncoder.encode(payload.password()), payload.email()));
-		Account a = accountRepository.save(new Account(
-				AccountNumberUtils.generate(),
-				u,
-				payload.name(),
-				exchange
-		));
-		for (var t : exchange.getAllTradeables()) {
-			a.getBalances().add(new Balance(a, t, BigDecimal.ZERO));
-		}
-		a = accountRepository.save(a);
-		return a.getId();
-	}
-
-	@Transactional
 	public void removeAccount(long exchangeId, long accountId, User user) {
 		Exchange exchange = exchangeRepository.findById(exchangeId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -217,7 +194,13 @@ public class ExchangeService {
 	public List<ExchangeAccountData> getExchanges(User user) {
 		return accountRepository.findAllByUser(user).stream()
 				.map(a -> new ExchangeAccountData(
-						new ExchangeData(a.getExchange().getId(), a.getExchange().getName(), a.getExchange().getPrimaryTradeable().getSymbol()),
+						new ExchangeData(
+								a.getExchange().getId(),
+								a.getExchange().getName(),
+								a.getExchange().getDescription(),
+								a.getExchange().getPrimaryTradeable().getSymbol(),
+								a.getExchange().getPrimaryTradeable().getId()
+						),
 						new SimpleAccountData(
 								a.getId(),
 								user.getId(),

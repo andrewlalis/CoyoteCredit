@@ -1,7 +1,6 @@
 package nl.andrewl.coyotecredit.ctl;
 
 import lombok.RequiredArgsConstructor;
-import nl.andrewl.coyotecredit.ctl.dto.AddAccountPayload;
 import nl.andrewl.coyotecredit.ctl.dto.EditExchangePayload;
 import nl.andrewl.coyotecredit.ctl.dto.InviteUserPayload;
 import nl.andrewl.coyotecredit.model.User;

@@ -20,7 +20,7 @@
         </tbody>
     </table>
 
-    <div class="card text-white bg-dark mb-3">
+    <div class="card text-white bg-dark mb-3" th:if="${!user.exchangeInvitations().isEmpty()}">
         <div class="card-body">
             <h5 class="card-title">Exchange Invitations</h5>
         </div>

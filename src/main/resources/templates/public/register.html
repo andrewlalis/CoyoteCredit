@@ -7,7 +7,7 @@
 <div id="content" class="container">
     <div class="row justify-content-center">
         <div class="col-lg-4">
-            <h1>Register</h1>
+            <h1 class="display-4">Register</h1>
             <form th:action="@{/register}" th:method="post">
                 <div class="mb-3">
                     <label for="usernameInput" class="form-label">Username</label>
@@ -44,8 +44,9 @@
                 <input type="submit" class="btn btn-primary mb-3" value="Register">
 
                 <p class="alert alert-dark">
-                    After registering, you will receive an email with a verification link. Please
-                    click that link to verify your account before attempting to log in.
+                    <strong>Note!</strong> After registering, you will receive an email with a
+                    verification link. Please click that link to verify your account before
+                    attempting to log in.
                 </p>
             </form>
         </div>
