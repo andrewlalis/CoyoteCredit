@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Request Exchange', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <h1 class="display-4">Request a New Exchange</h1>
+            <p>
+                Fill in the requested information below to submit your request
+                for a new exchange.
+            </p>
+
+            <form th:action="@{/requestExchange}" method="post">
+                <div class="mb-3">
+                    <label for="estimatedAccountCountInput" class="form-label">Estimated Number of Accounts</label>
+                    <input class="form-control" type="number" name="estimatedAccountCount" id="estimatedAccountCountInput" min="1" max="1000" step="1" value="5" required/>
+                </div>
+                <div class="mb-3">
+                    <label for="organizationInput" class="form-label">Organization</label>
+                    <small class="text-muted">The name of the organization that will use this exchange, if any.</small>
+                    <input class="form-control" type="text" name="organization" id="organizationInput"/>
+                </div>
+                <div class="mb-3">
+                    <label for="reasonInput" class="form-label">Reason</label>
+                    <small class="text-muted">Give some motivation for why you'd like to request an exchange.</small>
+                    <textarea id="reasonInput" name="reason" class="form-control" rows="3" required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>

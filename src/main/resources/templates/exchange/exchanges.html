@@ -15,7 +15,7 @@
                         <a class="colored-link" th:href="@{/exchanges/{eId}(eId=${exchange.exchange().id()})}" th:text="${exchange.exchange().name()}"></a>
                     </h5>
                     <h6 class="card-subtitle text-muted mb-2">
-                        Est. Account Balance:
+                        My Account Balance:
                         <span class="badge bg-secondary">
                     <span class="font-monospace" th:text="${exchange.account().totalBalance()}"></span>&nbsp;
                     <a class="colored-link" th:text="${exchange.exchange().primaryTradeable()}" th:href="@{/tradeables/{tId}(tId=${exchange.exchange().primaryTradeableId()})}"></a>

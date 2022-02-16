@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping(path = "/")
+@RequestMapping(path = {"/", "/home"})
 @RequiredArgsConstructor
 public class HomePage {
 	private final AccountService accountService;
