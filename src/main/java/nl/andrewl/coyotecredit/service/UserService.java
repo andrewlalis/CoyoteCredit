@@ -89,16 +89,16 @@ public class UserService {
 			user.getAccounts().add(account);
 			user.setActivated(true);
 			user = userRepository.save(user);
-		}
-
-		String token = StringUtils.random(64);
-		LocalDateTime expiresAt = LocalDateTime.now(ZoneOffset.UTC).plusHours(24);
-		UserActivationToken activationToken = new UserActivationToken(token, user, expiresAt);
-		activationTokenRepository.save(activationToken);
-		try {
-			sendActivationEmail(activationToken);
-		} catch (MessagingException e) {
-			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not send activation email.");
+		} else {
+			String token = StringUtils.random(64);
+			LocalDateTime expiresAt = LocalDateTime.now(ZoneOffset.UTC).plusHours(24);
+			UserActivationToken activationToken = new UserActivationToken(token, user, expiresAt);
+			activationTokenRepository.save(activationToken);
+			try {
+				sendActivationEmail(activationToken);
+			} catch (MessagingException e) {
+				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not send activation email.");
+			}
 		}
 	}
 
