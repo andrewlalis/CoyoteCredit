@@ -87,6 +87,7 @@ public class UserService {
 			}
 			account = accountRepository.save(account);
 			user.getAccounts().add(account);
+			user.setActivated(true);
 			user = userRepository.save(user);
 		}
 
