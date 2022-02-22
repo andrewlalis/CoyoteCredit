@@ -19,7 +19,7 @@
         </thead>
         <tbody>
             <tr th:each="account : ${accounts}">
-                <td><a class="colored-link" th:href="@{/accounts/{id}(id=${account.id()})}" th:text="${account.number()}"></a></td>
+                <td><a class="colored-link monospace" th:href="@{/accounts/{id}(id=${account.id()})}" th:text="${account.number()}"></a></td>
                 <td th:text="${account.name()}"></td>
                 <td th:text="${account.admin()}"></td>
                 <td class="monospace" th:text="${account.totalBalance()}"></td>

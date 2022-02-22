@@ -97,6 +97,10 @@ public class ExchangeService {
 
 	@Transactional(readOnly = true)
 	public void ensureAdminAccount(long exchangeId, User user) {
+		getExchangeIfAdmin(exchangeId, user);
+	}
+
+	private Exchange getExchangeIfAdmin(long exchangeId, User user) {
 		Exchange exchange = exchangeRepository.findById(exchangeId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		Account account = accountRepository.findByUserAndExchange(user, exchange)
@@ -104,6 +108,7 @@ public class ExchangeService {
 		if (!account.isAdmin()) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
+		return exchange;
 	}
 
 	@Transactional
@@ -321,5 +326,67 @@ public class ExchangeService {
 				url, url
 		), true);
 		mailSender.send(msg);
+	}
+
+	@Transactional(readOnly = true)
+	public EditTradeablesData getEditTradeablesData(long exchangeId, User user) {
+		Exchange exchange = getExchangeIfAdmin(exchangeId, user);
+		List<TradeableData> supportedPublicTradeables = exchange.getSupportedTradeables().stream()
+				.map(TradeableData::new).sorted(Comparator.comparing(TradeableData::symbol)).toList();
+		List<TradeableData> customTradeables = exchange.getCustomTradeables().stream()
+				.map(TradeableData::new).sorted(Comparator.comparing(TradeableData::symbol)).toList();
+		List<TradeableData> eligiblePublicTradeables = tradeableRepository.findAllByExchangeNull().stream()
+				.filter(t -> !exchange.getSupportedTradeables().contains(t))
+				.map(TradeableData::new).sorted(Comparator.comparing(TradeableData::symbol)).toList();
+		return new EditTradeablesData(
+				supportedPublicTradeables,
+				customTradeables,
+				new TradeableData(exchange.getPrimaryTradeable()),
+				eligiblePublicTradeables
+		);
+	}
+
+	@Transactional
+	public void addSupportedTradeable(long exchangeId, long tradeableId, User user) {
+		Exchange exchange = getExchangeIfAdmin(exchangeId, user);
+		Tradeable tradeable = tradeableRepository.findById(tradeableId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown tradeable."));
+		// Exit if the tradeable is already supported.
+		if (exchange.getSupportedTradeables().contains(tradeable)) return;
+		if (tradeable.getExchange() != null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown tradeable.");
+		}
+		exchange.getSupportedTradeables().add(tradeable);
+		// Add a zero-value balance to any account that's missing it.
+		for (var acc : exchange.getAccounts()) {
+			Balance bal = acc.getBalanceForTradeable(tradeable);
+			if (bal == null) {
+				acc.getBalances().add(new Balance(acc, tradeable, BigDecimal.ZERO));
+				accountRepository.save(acc);
+			}
+		}
+		exchangeRepository.save(exchange);
+	}
+
+	@Transactional
+	public void removeSupportedTradeable(long exchangeId, long tradeableId, User user) {
+		Exchange exchange = getExchangeIfAdmin(exchangeId, user);
+		Tradeable tradeable = tradeableRepository.findById(tradeableId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown tradeable."));
+		// Quietly exit if the user is trying to remove a tradeable that isn't supported in the first place.
+		if (!exchange.getSupportedTradeables().contains(tradeable)) return;
+		if (exchange.getPrimaryTradeable().equals(tradeable)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot remove the primary tradeable asset. Change this first.");
+		}
+		exchange.getSupportedTradeables().remove(tradeable);
+		// Delete balance for any account that has it.
+		for (var acc : exchange.getAccounts()) {
+			Balance bal = acc.getBalanceForTradeable(tradeable);
+			if (bal != null) {
+				acc.getBalances().remove(bal);
+				accountRepository.save(acc);
+			}
+		}
+		exchangeRepository.save(exchange);
 	}
 }

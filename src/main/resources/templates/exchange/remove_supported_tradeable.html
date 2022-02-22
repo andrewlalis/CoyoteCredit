@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Remove Tradeable', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1 class="display-4">Remove Supported Tradeable Asset</h1>
+    <p>
+        Are you sure you want to remove this tradeable asset from your exchange?
+        All accounts will have their balance of this asset permanently removed,
+        and it cannot be undone.
+    </p>
+    <form th:action="@{/exchanges/{eId}/removeSupportedTradeable/{tId}(eId=${exchangeId}, tId=${tradeableId})}" method="post">
+        <a class="btn btn-secondary" th:href="@{/exchanges/{eId}/editTradeables(eId=${exchangeId})}">Cancel</a>
+        <button class="btn btn-danger" type="submit">Remove</button>
+    </form>
+</div>

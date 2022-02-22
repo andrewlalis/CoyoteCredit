@@ -40,4 +40,10 @@ public class Balance {
 		this.tradeable = tradeable;
 		this.amount = amount;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) return true;
+		return o instanceof Balance b && this.getBalanceId().equals(b.getBalanceId());
+	}
 }

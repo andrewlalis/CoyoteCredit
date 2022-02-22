@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Edit Tradeables', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1 class="display-4">Edit Tradeable Assets</h1>
+
+    <div class="card text-white bg-dark mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Supported Publicly Traded Assets</h5>
+            <p class="card-text text-muted">
+                These assets are publicly available to all exchanges in Coyote Credit, and their price is updated automatically with real-world data.
+            </p>
+            <table class="table table-dark">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Symbol</th>
+                    <th>Price (USD)</th>
+                    <th>Type</th>
+                    <th>Remove</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="tradeable : ${data.supportedPublicTradeables()}">
+                    <td>
+                        <a class="colored-link" th:href="@{/tradeables/{tId}(tId=${tradeable.id()})}" th:text="${tradeable.name()}"></a>
+                    </td>
+                    <td th:text="${tradeable.symbol()}"></td>
+                    <td class="monospace" th:text="${tradeable.formattedPriceUsd()}"></td>
+                    <td th:text="${tradeable.type()}"></td>
+                    <td>
+                        <a class="colored-link" th:href="@{/exchanges/{eId}/removeSupportedTradeable/{tId}(eId=${exchangeId}, tId=${tradeable.id()})}">Remove</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <form
+                    th:if="${!data.eligiblePublicTradeables().isEmpty()}"
+                    th:action="@{/exchanges/{eId}/addSupportedTradeable(eId=${exchangeId})}"
+                    method="post"
+            >
+                <label for="addSupportedTradeableSelect" class="form-label">Add support for a new tradeable asset</label>
+                <select id="addSupportedTradeableSelect" class="form-select" name="tradeableId">
+                    <option
+                        th:each="tradeable : ${data.eligiblePublicTradeables()}"
+                        th:text="${tradeable.name() + ' (' + tradeable.symbol() + ')'}"
+                        th:value="${tradeable.id()}"
+                    ></option>
+                </select>
+                <button class="btn btn-primary mt-2" type="submit">Add</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card text-white bg-dark mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Custom Traded Assets</h5>
+            <p class="card-text text-muted">
+                These assets are available only within this exchange.
+            </p>
+            <table class="table table-dark">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Symbol</th>
+                    <th>Price (USD)</th>
+                    <th>Type</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="tradeable : ${data.customTradeables()}">
+                    <td>
+                        <a class="colored-link" th:href="@{/tradeables/{tId}(tId=${tradeable.id()})}" th:text="${tradeable.name()}"></a>
+                    </td>
+                    <td th:text="${tradeable.symbol()}"></td>
+                    <td class="monospace" th:text="${tradeable.formattedPriceUsd()}"></td>
+                    <td th:text="${tradeable.type()}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

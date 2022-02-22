@@ -1,14 +1,17 @@
 package nl.andrewl.coyotecredit.ctl;
 
 import lombok.RequiredArgsConstructor;
+import nl.andrewl.coyotecredit.ctl.dto.AddSupportedTradeablePayload;
 import nl.andrewl.coyotecredit.ctl.dto.EditExchangePayload;
 import nl.andrewl.coyotecredit.ctl.dto.InviteUserPayload;
 import nl.andrewl.coyotecredit.model.User;
 import nl.andrewl.coyotecredit.service.ExchangeService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 
@@ -82,5 +85,32 @@ public class ExchangeController {
 	public String postEdit(@PathVariable long exchangeId, @AuthenticationPrincipal User user, @Valid @ModelAttribute EditExchangePayload payload) {
 		exchangeService.edit(exchangeId, payload, user);
 		return "redirect:/exchanges/" + exchangeId;
+	}
+
+	@GetMapping(path = "/{exchangeId}/editTradeables")
+	public String getEditTradeablesPage(Model model, @PathVariable long exchangeId, @AuthenticationPrincipal User user) {
+		model.addAttribute("data", exchangeService.getEditTradeablesData(exchangeId, user));
+		return "exchange/edit_tradeables";
+	}
+
+	@PostMapping(path = "/{exchangeId}/addSupportedTradeable")
+	public String postAddSupportedTradeable(@PathVariable long exchangeId, @AuthenticationPrincipal User user, @ModelAttribute AddSupportedTradeablePayload payload) {
+		exchangeService.addSupportedTradeable(exchangeId, payload.tradeableId(), user);
+		return "redirect:/exchanges/" + exchangeId + "/editTradeables";
+	}
+
+	@GetMapping(path = "/{exchangeId}/removeSupportedTradeable/{tradeableId}")
+	public String getRemoveSupportedTradeablePage(@PathVariable long exchangeId, @PathVariable long tradeableId, @AuthenticationPrincipal User user) {
+		var data = exchangeService.getEditTradeablesData(exchangeId, user);
+		if (data.supportedPublicTradeables().stream().noneMatch(t -> t.id() == tradeableId)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This tradeable cannot be removed from the exchange.");
+		}
+		return "exchange/remove_supported_tradeable";
+	}
+
+	@PostMapping(path = "/{exchangeId}/removeSupportedTradeable/{tradeableId}")
+	public String postRemoveSupportedTradeable(@PathVariable long exchangeId, @PathVariable long tradeableId, @AuthenticationPrincipal User user) {
+		exchangeService.removeSupportedTradeable(exchangeId, tradeableId, user);
+		return "redirect:/exchanges/" + exchangeId + "/editTradeables";
 	}
 }

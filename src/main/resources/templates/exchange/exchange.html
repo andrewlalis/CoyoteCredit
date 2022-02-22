@@ -24,6 +24,10 @@
                 <dd class="col-sm-6" th:text="${exchange.accountCount()}"></dd>
             </dl>
             <a class="btn btn-primary" th:href="@{/accounts/{aId}(aId=${exchange.accountId()})}">My Account</a>
+            <span th:if="${exchange.accountAdmin()}">
+                <a class="btn btn-primary" th:href="@{/exchanges/{eId}/accounts(eId=${exchange.id()})}">View All Accounts</a>
+                <a class="btn btn-secondary" th:href="@{/exchanges/{eId}/edit(eId=${exchange.id()})}">Edit Exchange Settings</a>
+            </span>
         </div>
     </div>
 
@@ -33,29 +37,26 @@
             <table class="table table-dark">
                 <thead>
                 <tr>
-                    <th>Symbol</th>
-                    <th>Type</th>
-                    <th>Price (in USD)</th>
                     <th>Name</th>
+                    <th>Symbol</th>
+                    <th>Price (USD)</th>
+                    <th>Type</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="tradeable : ${exchange.supportedTradeables()}">
+                    <td>
+                        <a class="colored-link" th:href="@{/tradeables/{tId}(tId=${tradeable.id()})}" th:text="${tradeable.name()}"></a>
+                    </td>
                     <td th:text="${tradeable.symbol()}"></td>
-                    <td th:text="${tradeable.type()}"></td>
                     <td class="monospace" th:text="${tradeable.formattedPriceUsd()}"></td>
-                    <td th:text="${tradeable.name()}"></td>
+                    <td th:text="${tradeable.type()}"></td>
                 </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <div class="card text-white bg-dark mb-3" th:if="${exchange.accountAdmin()}">
-        <div class="card-body">
-            <h5 class="card-title">Administrator Tools</h5>
-            <a class="btn btn-primary" th:href="@{/exchanges/{eId}/accounts(eId=${exchange.id()})}">View All Accounts</a>
-            <a class="btn btn-secondary" th:href="@{/exchanges/{eId}/edit(eId=${exchange.id()})}">Edit Exchange Settings</a>
+            <span th:if="${exchange.accountAdmin()}">
+                <a class="btn btn-primary" th:href="@{/exchanges/{eId}/editTradeables(eId=${exchange.id()})}">Edit Tradeable Assets</a>
+            </span>
         </div>
     </div>
 </div>
