@@ -138,7 +138,7 @@ public class AccountService {
 								b.getTradeable().getType().name(),
 								b.getAmount().toPlainString()
 						))
-						.sorted(Comparator.comparing(BalanceData::symbol))
+						.sorted(Comparator.comparing(BalanceData::amount).thenComparing(BalanceData::symbol))
 						.toList(),
 				TradeableData.DECIMAL_FORMAT.format(account.getTotalBalance()),
 				transactionData
