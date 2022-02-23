@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -31,10 +30,10 @@ public class ExchangeService {
 	private final AccountRepository accountRepository;
 	private final TransactionRepository transactionRepository;
 	private final TradeableRepository tradeableRepository;
+	private final AccountValueSnapshotRepository accountValueSnapshotRepository;
 	private final UserRepository userRepository;
 	private final ExchangeInvitationRepository invitationRepository;
 	private final JavaMailSender mailSender;
-	private final PasswordEncoder passwordEncoder;
 
 	@Value("${coyote-credit.base-url}")
 	private String baseUrl;
@@ -122,6 +121,7 @@ public class ExchangeService {
 		if (!userAccount.isAdmin()) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
+		accountValueSnapshotRepository.deleteAllByAccount(account);
 		accountRepository.delete(account);
 	}
 

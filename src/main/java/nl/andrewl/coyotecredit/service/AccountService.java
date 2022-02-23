@@ -2,20 +2,23 @@ package nl.andrewl.coyotecredit.service;
 
 import lombok.RequiredArgsConstructor;
 import nl.andrewl.coyotecredit.ctl.dto.*;
-import nl.andrewl.coyotecredit.dao.AccountRepository;
-import nl.andrewl.coyotecredit.dao.TradeableRepository;
-import nl.andrewl.coyotecredit.dao.TransactionRepository;
-import nl.andrewl.coyotecredit.dao.TransferRepository;
+import nl.andrewl.coyotecredit.dao.*;
 import nl.andrewl.coyotecredit.model.*;
 import nl.andrewl.coyotecredit.util.AccountNumberUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -26,6 +29,7 @@ public class AccountService {
 	private final TransactionRepository transactionRepository;
 	private final TradeableRepository tradeableRepository;
 	private final TransferRepository transferRepository;
+	private final AccountValueSnapshotRepository valueSnapshotRepository;
 
 	@Transactional(readOnly = true)
 	public List<BalanceData> getTransferData(long accountId, User user) {
@@ -168,5 +172,22 @@ public class AccountService {
 			}
 		}
 		accountRepository.save(account);
+	}
+
+	@Scheduled(cron = "@midnight")
+	@Transactional
+	public void doAccountValueSnapshots() {
+		Pageable pageable = Pageable.ofSize(10);
+		LocalDateTime timestamp = LocalDateTime.now(ZoneOffset.UTC);
+		Page<Account> page = accountRepository.findAll(pageable);
+		while (!page.isEmpty()) {
+			List<AccountValueSnapshot> snapshots = new ArrayList<>();
+			for (var account : page.getContent()) {
+				snapshots.add(new AccountValueSnapshot(account, timestamp, account.getTotalBalanceUsd()));
+			}
+			valueSnapshotRepository.saveAll(snapshots);
+			pageable = pageable.next();
+			page = accountRepository.findAll(pageable);
+		}
 	}
 }
