@@ -16,7 +16,7 @@ public record TradeableData(
 		Long exchangeId,
 		String exchangeName
 ) {
-	public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.00");
+	public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,##0.0000");
 
 	public TradeableData(Tradeable t) {
 		this(
