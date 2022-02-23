@@ -46,7 +46,7 @@ public class TradeableUpdateService {
 		updatePublicTradeables();
 	}
 
-	@Scheduled(cron = "@midnight")
+	@Scheduled(cron = "0 0 0,6,12,18 * * *")
 	public void scheduledUpdate() {
 		updatePublicTradeables();
 	}

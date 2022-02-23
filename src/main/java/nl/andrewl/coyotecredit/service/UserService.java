@@ -136,6 +136,7 @@ public class UserService {
 	}
 
 	@Scheduled(cron = "@midnight")
+	@Transactional
 	public void removeExpiredActivationTokens() {
 		activationTokenRepository.deleteAllByExpiresAtBefore(LocalDateTime.now(ZoneOffset.UTC));
 	}
