@@ -6,6 +6,9 @@ import nl.andrewl.coyotecredit.ctl.dto.EditExchangePayload;
 import nl.andrewl.coyotecredit.ctl.dto.InviteUserPayload;
 import nl.andrewl.coyotecredit.model.User;
 import nl.andrewl.coyotecredit.service.ExchangeService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -112,5 +115,17 @@ public class ExchangeController {
 	public String postRemoveSupportedTradeable(@PathVariable long exchangeId, @PathVariable long tradeableId, @AuthenticationPrincipal User user) {
 		exchangeService.removeSupportedTradeable(exchangeId, tradeableId, user);
 		return "redirect:/exchanges/" + exchangeId + "/editTradeables";
+	}
+
+	@GetMapping(path = "/{exchangeId}/transfers")
+	public String getTransfers(
+			Model model,
+			@PathVariable long exchangeId,
+			@AuthenticationPrincipal User user,
+			@PageableDefault(size = 50, sort = "timestamp", direction = Sort.Direction.DESC)
+			Pageable pageable
+	) {
+		model.addAttribute("transfers", exchangeService.getTransfers(exchangeId, user, pageable));
+		return "exchange/transfers";
 	}
 }

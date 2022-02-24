@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Transfers', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1 class="display-4">Transfers</h1>
+    <p class="lead">
+        View all transfers between accounts within this exchange.
+    </p>
+
+    <div class="mb-3">
+        <span class="lead">
+            Page <span th:text="${transfers.getNumber() + 1}"></span> of <span th:text="${transfers.getTotalPages()}"></span>
+            <small class="text-muted">
+                (<span th:text="${transfers.getTotalElements()}"></span> total transfers)
+            </small>
+        </span>
+        <a
+            class="btn btn-primary"
+            th:if="${transfers.hasPrevious()}"
+            th:href="@{/exchanges/{eId}/transfers(eId=${exchangeId}, page=${transfers.previousPageable().getPageNumber()}, size=${transfers.previousPageable().getPageSize()})}"
+        >
+            Previous Page
+        </a>
+        <a
+            class="btn btn-primary"
+            th:if="${transfers.hasNext()}"
+            th:href="@{/exchanges/{eId}/transfers(eId=${exchangeId}, page=${transfers.nextPageable().getPageNumber()}, size=${transfers.nextPageable().getPageSize()})}"
+        >
+            Next Page
+        </a>
+    </div>
+
+    <table class="table table-dark">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Timestamp</th>
+            <th>Sender</th>
+            <th>Recipient</th>
+            <th>Asset</th>
+            <th>Amount</th>
+            <th>Message</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="transfer : ${transfers.getContent()}">
+            <td class="monospace" th:text="${transfer.id()}"></td>
+            <td th:text="${transfer.timestamp()}"></td>
+            <td class="monospace" th:text="${transfer.senderNumber()}"></td>
+            <td class="monospace" th:text="${transfer.recipientNumber()}"></td>
+            <td>
+                <a class="colored-link" th:text="${transfer.tradeable().name()}" th:href="@{/tradeables/{tId}(tId=${transfer.tradeable().id()})}"></a>
+            </td>
+            <td class="monospace" th:text="${transfer.amount()}"></td>
+            <td class="small" th:text="${transfer.message()}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>

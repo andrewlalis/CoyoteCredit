@@ -7,6 +7,8 @@ import nl.andrewl.coyotecredit.model.*;
 import nl.andrewl.coyotecredit.util.AccountNumberUtils;
 import nl.andrewl.coyotecredit.util.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -16,6 +18,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -29,6 +34,7 @@ public class ExchangeService {
 	private final ExchangeRepository exchangeRepository;
 	private final AccountRepository accountRepository;
 	private final TransactionRepository transactionRepository;
+	private final TransferRepository transferRepository;
 	private final TradeableRepository tradeableRepository;
 	private final AccountValueSnapshotRepository accountValueSnapshotRepository;
 	private final UserRepository userRepository;
@@ -388,5 +394,22 @@ public class ExchangeService {
 			}
 		}
 		exchangeRepository.save(exchange);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<TransferData> getTransfers(long exchangeId, User user, Pageable pageable) {
+		Exchange exchange = getExchangeIfAdmin(exchangeId, user);
+		Page<Transfer> transfers = transferRepository.findAll((root, query, criteriaBuilder) -> {
+			Subquery<String> accountNumberSubquery = query.subquery(String.class);
+			Root<Account> accountRoot = accountNumberSubquery.from(Account.class);
+			accountNumberSubquery.select(accountRoot.get("number"))
+					.distinct(true)
+					.where(criteriaBuilder.equal(accountRoot.get("exchange").get("id"), exchange.getId()));
+			return criteriaBuilder.or(
+					criteriaBuilder.in(root.get("senderNumber")).value(accountNumberSubquery),
+					criteriaBuilder.in(root.get("recipientNumber")).value(accountNumberSubquery)
+			);
+		}, pageable);
+		return transfers.map(TransferData::new);
 	}
 }

@@ -66,6 +66,9 @@ public class AccountService {
 		}
 		Account recipient = accountRepository.findByNumber(recipientNumber)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown recipient."));
+		if (!recipient.getExchange().getId().equals(sender.getExchange().getId())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot transfer funds between exchanges.");
+		}
 		Tradeable tradeable = tradeableRepository.findById(payload.tradeableId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown tradeable asset."));
 		BigDecimal amount = new BigDecimal(payload.amount());

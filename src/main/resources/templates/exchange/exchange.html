@@ -25,7 +25,8 @@
             </dl>
             <a class="btn btn-primary" th:href="@{/accounts/{aId}(aId=${exchange.accountId()})}">My Account</a>
             <span th:if="${exchange.accountAdmin()}">
-                <a class="btn btn-primary" th:href="@{/exchanges/{eId}/accounts(eId=${exchange.id()})}">View All Accounts</a>
+                <a class="btn btn-secondary" th:href="@{/exchanges/{eId}/accounts(eId=${exchange.id()})}">View All Accounts</a>
+                <a class="btn btn-secondary" th:href="@{/exchanges/{eId}/transfers(eId=${exchange.id()}, page=0, size=50)}">View Transfers</a>
                 <a class="btn btn-secondary" th:href="@{/exchanges/{eId}/edit(eId=${exchange.id()})}">Edit Exchange Settings</a>
             </span>
         </div>

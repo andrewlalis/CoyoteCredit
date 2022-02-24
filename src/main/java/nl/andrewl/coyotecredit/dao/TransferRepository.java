@@ -4,11 +4,12 @@ import nl.andrewl.coyotecredit.model.Transfer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TransferRepository extends JpaRepository<Transfer, Long> {
+public interface TransferRepository extends JpaRepository<Transfer, Long>, JpaSpecificationExecutor<Transfer> {
 	@Query(
 			"SELECT t FROM Transfer t " +
 			"WHERE t.senderNumber = :accountNumber OR t.recipientNumber = :accountNumber " +
