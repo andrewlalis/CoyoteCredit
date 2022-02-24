@@ -13,6 +13,9 @@
         <div class="mb-3">
             <label for="recipientNumberInput" class="form-label">Recipient Account Number</label>
             <input type="text" name="recipientNumber" class="form-control" id="recipientNumberInput" required/>
+            <small class="text-muted">
+                Format: <span class="monospace">1234-1234-1234-1234</span><br>
+            </small>
         </div>
         <div class="mb-3">
             <label for="tradeableSelect" class="form-label">Asset</label>
@@ -27,11 +30,17 @@
         <div class="mb-3">
             <label for="amountInput" class="form-label">Amount</label>
             <input type="number" min="0" name="amount" class="form-control" id="amountInput" required/>
+            <small class="text-muted">
+                You may only transfer up to your maximum balance.
+            </small>
         </div>
         <div class="mb-3">
             <label for="messageTextArea" class="form-label">Message</label>
-            <small class="text-muted">Note: Message text is readable by administrators.</small>
             <textarea class="form-control" name="message" rows="3" id="messageTextArea" maxlength="1024"></textarea>
+            <small class="text-muted">
+                Note: Message text is saved in a transfer record, and is regularly scanned by
+                automated systems, and administrators.
+            </small>
         </div>
         <button type="submit" class="btn btn-primary btn-lg">Transfer</button>
 
