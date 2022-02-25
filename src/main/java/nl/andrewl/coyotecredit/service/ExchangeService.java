@@ -122,13 +122,25 @@ public class ExchangeService {
 	@Transactional
 	public void addAccount(long exchangeId, User user, AddAccountPayload payload) {
 		Exchange exchange = getExchangeIfAdmin(exchangeId, user);
+		Account userAccount = accountRepository.findByUserAndExchange(user, exchange).orElseThrow();
 		if (userRepository.existsByUsername(payload.username())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is taken.");
 		}
 		if (userRepository.existsByEmail(payload.email())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "There is already an account with that email.");
 		}
-		User newUser = userRepository.save(new User(payload.username(), passwordEncoder.encode(payload.password()), payload.email()));
+		User newUser = new User(payload.username(), passwordEncoder.encode(payload.password()), payload.email());
+		newUser.setActivated(true);
+		newUser = userRepository.save(newUser);
+		notificationRepository.save(new UserNotification(newUser, String.format(
+				"Welcome to Coyote Credit, %s. Your account has been created automatically by %s, " +
+				"so that you can participate in %s. The primary trading currency for that exchange " +
+				"is the %s.",
+				payload.accountName(),
+				userAccount.getName(),
+				exchange.getName(),
+				exchange.getPrimaryTradeable().getName()
+		)));
 		Account account = accountRepository.save(new Account(AccountNumberUtils.generate(), newUser, payload.accountName(), exchange));
 		for (var t : exchange.getAllTradeables()) {
 			account.getBalances().add(new Balance(account, t, BigDecimal.ZERO));
