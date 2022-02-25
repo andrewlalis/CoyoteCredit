@@ -2,6 +2,7 @@ package nl.andrewl.coyotecredit.service;
 
 import lombok.RequiredArgsConstructor;
 import nl.andrewl.coyotecredit.ctl.dto.*;
+import nl.andrewl.coyotecredit.ctl.exchange.dto.*;
 import nl.andrewl.coyotecredit.dao.*;
 import nl.andrewl.coyotecredit.model.*;
 import nl.andrewl.coyotecredit.util.AccountNumberUtils;
@@ -18,7 +19,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 import java.math.BigDecimal;
@@ -39,6 +39,7 @@ public class ExchangeService {
 	private final AccountValueSnapshotRepository accountValueSnapshotRepository;
 	private final UserRepository userRepository;
 	private final ExchangeInvitationRepository invitationRepository;
+	private final UserNotificationRepository notificationRepository;
 	private final JavaMailSender mailSender;
 
 	@Value("${coyote-credit.base-url}")
@@ -129,6 +130,10 @@ public class ExchangeService {
 		}
 		accountValueSnapshotRepository.deleteAllByAccount(account);
 		accountRepository.delete(account);
+		notificationRepository.save(new UserNotification(
+				account.getUser(),
+				"Your account in " + exchange.getName() + " has been removed."
+		));
 	}
 
 	@Transactional(readOnly = true)
@@ -299,6 +304,10 @@ public class ExchangeService {
 			account.getBalances().add(new Balance(account, t, BigDecimal.ZERO));
 		}
 		accountRepository.save(account);
+		notificationRepository.save(new UserNotification(
+				user,
+				"Congratulations! You've just joined " + exchange.getName() + "."
+		));
 	}
 
 	@Transactional
@@ -391,6 +400,12 @@ public class ExchangeService {
 			if (bal != null) {
 				acc.getBalances().remove(bal);
 				accountRepository.save(acc);
+				notificationRepository.save(new UserNotification(
+						acc.getUser(),
+						String.format("Your balance of %s has been removed from your account in %s because the exchange no longer supports it.",
+								tradeable.getSymbol(),
+								exchange.getName())
+				));
 			}
 		}
 		exchangeRepository.save(exchange);

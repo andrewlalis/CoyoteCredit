@@ -1,4 +1,4 @@
-package nl.andrewl.coyotecredit.ctl.dto;
+package nl.andrewl.coyotecredit.ctl.exchange.dto;
 
 public record ExchangeData(
 		long id,

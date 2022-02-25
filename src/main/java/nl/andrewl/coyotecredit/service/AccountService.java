@@ -2,6 +2,7 @@ package nl.andrewl.coyotecredit.service;
 
 import lombok.RequiredArgsConstructor;
 import nl.andrewl.coyotecredit.ctl.dto.*;
+import nl.andrewl.coyotecredit.ctl.exchange.dto.ExchangeData;
 import nl.andrewl.coyotecredit.dao.*;
 import nl.andrewl.coyotecredit.model.*;
 import nl.andrewl.coyotecredit.util.AccountNumberUtils;
@@ -30,6 +31,7 @@ public class AccountService {
 	private final TradeableRepository tradeableRepository;
 	private final TransferRepository transferRepository;
 	private final AccountValueSnapshotRepository valueSnapshotRepository;
+	private final UserNotificationRepository notificationRepository;
 
 	@Transactional(readOnly = true)
 	public List<BalanceData> getTransferData(long accountId, User user) {
@@ -86,13 +88,31 @@ public class AccountService {
 		recipientBalance.setAmount(recipientBalance.getAmount().add(amount));
 		accountRepository.save(sender);
 		accountRepository.save(recipient);
-		transferRepository.save(new Transfer(
+		Transfer t = transferRepository.save(new Transfer(
 				sender.getNumber(),
 				recipient.getNumber(),
 				tradeable,
 				amount,
 				payload.message()
 		));
+		String senderMessage = String.format("You have sent %s %s to %s (%s) from your account in %s.",
+				amount.toPlainString(),
+				tradeable.getSymbol(),
+				recipient.getNumber(),
+				recipient.getName(),
+				sender.getExchange().getName());
+		String recipientMessage = String.format("You have received %s %s from %s (%s) in your account in %s.",
+				amount.toPlainString(),
+				tradeable.getSymbol(),
+				sender.getNumber(),
+				sender.getName(),
+				recipient.getExchange().getName());
+		if (t.getMessage() != null) {
+			recipientMessage += " Message: " + t.getMessage();
+			senderMessage += " Message: " + t.getMessage();
+		}
+		notificationRepository.save(new UserNotification(sender.getUser(), senderMessage));
+		notificationRepository.save(new UserNotification(recipient.getUser(), recipientMessage));
 	}
 
 	public static record AccountData (
@@ -175,6 +195,13 @@ public class AccountService {
 			}
 		}
 		accountRepository.save(account);
+		notificationRepository.save(new UserNotification(
+				account.getUser(),
+				String.format("Your account %s in %s had its balances edited by %s.",
+						account.getNumber(),
+						account.getExchange().getName(),
+						userAccount.getName())
+		));
 	}
 
 	@Scheduled(cron = "@midnight")

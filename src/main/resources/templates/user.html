@@ -20,6 +20,31 @@
         </tbody>
     </table>
 
+    <div class="card text-white bg-dark mb-3">
+        <div class="card-body">
+            <div class="card-title d-flex justify-content-between">
+                <h5>Notifications</h5>
+                <form th:action="@{/userNotifications/dismissAll}" method="post" class="float-end">
+                    <button type="submit" class="btn btn-sm btn-secondary">Dismiss All</button>
+                </form>
+            </div>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item list-group-item-dark" th:each="n : ${user.newNotifications()}">
+                <div class="d-flex justify-content-between">
+                    <small th:text="${n.sentAt()}"></small>
+                    <form th:action="@{/userNotifications/{nId}/dismiss(nId=${n.id()})}" method="post" class="float-end">
+                        <button type="submit" class="btn btn-sm btn-secondary">Dismiss</button>
+                    </form>
+                </div>
+                <p th:text="${n.content()}"></p>
+            </li>
+            <li class="list-group-item list-group-item-dark" th:if="${user.newNotifications().isEmpty()}">
+                You don't have any new notifications.
+            </li>
+        </ul>
+    </div>
+
     <div class="card text-white bg-dark mb-3" th:if="${!user.exchangeInvitations().isEmpty()}">
         <div class="card-body">
             <h5 class="card-title">Exchange Invitations</h5>

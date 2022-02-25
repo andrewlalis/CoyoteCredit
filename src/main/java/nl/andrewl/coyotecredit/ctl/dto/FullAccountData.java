@@ -1,5 +1,7 @@
 package nl.andrewl.coyotecredit.ctl.dto;
 
+import nl.andrewl.coyotecredit.ctl.exchange.dto.ExchangeData;
+
 import java.util.List;
 
 /**

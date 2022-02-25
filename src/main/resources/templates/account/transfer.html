@@ -20,10 +20,13 @@
         <div class="mb-3">
             <label for="tradeableSelect" class="form-label">Asset</label>
             <select class="form-select" id="tradeableSelect" name="tradeableId" required>
+                <option value="" selected disabled hidden>Choose something to send</option>
                 <option
                         th:each="b : ${balances}"
                         th:text="${b.symbol() + ' - Balance ' + b.amount()}"
                         th:value="${b.id()}"
+                        th:data-amount="${b.amount()}"
+                        th:data-type="${b.type()}"
                 ></option>
             </select>
         </div>
@@ -48,4 +51,6 @@
             Warning! All transfers are final, and cannot be reversed.
         </p>
     </form>
+
+    <script src="/static/js/transfer.js"></script>
 </div>

@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -35,9 +36,11 @@ public class User implements UserDetails {
 	@Column(nullable = false)
 	private String email;
 
-	@Column(nullable = false)
-	@Setter
+	@Column(nullable = false) @Setter
 	private boolean activated = false;
+
+	@Column(nullable = false) @Setter
+	private boolean admin = false;
 
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
@@ -47,6 +50,11 @@ public class User implements UserDetails {
 	 */
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Account> accounts;
+
+	@Setter
+	private transient long newNotificationCount;
+	@Setter
+	private transient boolean hasNotifications;
 
 	public User(String username, String passwordHash, String email) {
 		this.username = username;

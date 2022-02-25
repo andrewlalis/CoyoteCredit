@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	private final CCUserDetailsService userDetailsService;
 	private final PasswordEncoder passwordEncoder;
+	private final UserNotificationSetFilter userNotificationSetFilter;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -43,6 +45,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.logoutSuccessUrl("/login")
 				.deleteCookies("JSESSIONID");
 
+		http.addFilterAfter(this.userNotificationSetFilter, SecurityContextHolderAwareRequestFilter.class);
 	}
 
 	@Override

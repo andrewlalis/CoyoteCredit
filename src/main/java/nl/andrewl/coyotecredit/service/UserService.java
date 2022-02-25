@@ -1,17 +1,12 @@
 package nl.andrewl.coyotecredit.service;
 
 import lombok.RequiredArgsConstructor;
-import nl.andrewl.coyotecredit.ctl.dto.InvitationData;
+import nl.andrewl.coyotecredit.ctl.exchange.dto.InvitationData;
 import nl.andrewl.coyotecredit.ctl.dto.RegisterPayload;
-import nl.andrewl.coyotecredit.ctl.dto.UserData;
-import nl.andrewl.coyotecredit.dao.AccountRepository;
-import nl.andrewl.coyotecredit.dao.ExchangeInvitationRepository;
-import nl.andrewl.coyotecredit.dao.UserActivationTokenRepository;
-import nl.andrewl.coyotecredit.dao.UserRepository;
-import nl.andrewl.coyotecredit.model.Account;
-import nl.andrewl.coyotecredit.model.Balance;
-import nl.andrewl.coyotecredit.model.User;
-import nl.andrewl.coyotecredit.model.UserActivationToken;
+import nl.andrewl.coyotecredit.ctl.user.dto.UserData;
+import nl.andrewl.coyotecredit.ctl.user.dto.UserNotificationData;
+import nl.andrewl.coyotecredit.dao.*;
+import nl.andrewl.coyotecredit.model.*;
 import nl.andrewl.coyotecredit.util.AccountNumberUtils;
 import nl.andrewl.coyotecredit.util.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +35,7 @@ public class UserService {
 	private final AccountRepository accountRepository;
 	private final UserActivationTokenRepository activationTokenRepository;
 	private final ExchangeInvitationRepository exchangeInvitationRepository;
+	private final UserNotificationRepository notificationRepository;
 	private final JavaMailSender mailSender;
 	private final PasswordEncoder passwordEncoder;
 
@@ -60,7 +56,10 @@ public class UserService {
 			exchangeInvitations.add(new InvitationData(invitation.getId(), invitation.getExchange().getId(), invitation.getExchange().getName()));
 		}
 		exchangeInvitations.sort(Comparator.comparing(InvitationData::id));
-		return new UserData(user.getId(), user.getUsername(), user.getEmail(), exchangeInvitations);
+		var notifications = notificationRepository.findAllNewNotifications(user).stream()
+				.map(UserNotificationData::new)
+				.toList();
+		return new UserData(user.getId(), user.getUsername(), user.getEmail(), exchangeInvitations, notifications);
 	}
 
 	@Transactional
@@ -139,5 +138,27 @@ public class UserService {
 	@Transactional
 	public void removeExpiredActivationTokens() {
 		activationTokenRepository.deleteAllByExpiresAtBefore(LocalDateTime.now(ZoneOffset.UTC));
+	}
+
+	@Transactional
+	public void dismissNotification(User user, long notificationId) {
+		UserNotification n = notificationRepository.findById(notificationId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		if (!n.getUser().getId().equals(user.getId())) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+		n.setDismissed(true);
+		n.setDismissedAt(LocalDateTime.now(ZoneOffset.UTC));
+		notificationRepository.save(n);
+	}
+
+	@Transactional
+	public void dismissAllNotifications(User user) {
+		var notifications = notificationRepository.findAllNewNotifications(user);
+		for (var n : notifications) {
+			n.setDismissed(true);
+			n.setDismissedAt(LocalDateTime.now(ZoneOffset.UTC));
+		}
+		notificationRepository.saveAll(notifications);
 	}
 }

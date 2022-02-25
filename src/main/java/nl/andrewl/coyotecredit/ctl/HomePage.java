@@ -17,7 +17,7 @@ public class HomePage {
 
 	@GetMapping
 	public String get(Model model, @AuthenticationPrincipal User user) {
-		model.addAttribute("accounts", accountService.getAccountsOverview(user));
+		//model.addAttribute("accounts", accountService.getAccountsOverview(user));
 		return "home";
 	}
 }

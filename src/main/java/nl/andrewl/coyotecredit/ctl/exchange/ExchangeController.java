@@ -1,9 +1,9 @@
-package nl.andrewl.coyotecredit.ctl;
+package nl.andrewl.coyotecredit.ctl.exchange;
 
 import lombok.RequiredArgsConstructor;
-import nl.andrewl.coyotecredit.ctl.dto.AddSupportedTradeablePayload;
-import nl.andrewl.coyotecredit.ctl.dto.EditExchangePayload;
-import nl.andrewl.coyotecredit.ctl.dto.InviteUserPayload;
+import nl.andrewl.coyotecredit.ctl.exchange.dto.AddSupportedTradeablePayload;
+import nl.andrewl.coyotecredit.ctl.exchange.dto.EditExchangePayload;
+import nl.andrewl.coyotecredit.ctl.exchange.dto.InviteUserPayload;
 import nl.andrewl.coyotecredit.model.User;
 import nl.andrewl.coyotecredit.service.ExchangeService;
 import org.springframework.data.domain.Pageable;

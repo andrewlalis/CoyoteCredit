@@ -10,7 +10,15 @@
     <form th:action="@{/accounts/{aId}/editBalances(aId=${accountId})}" th:method="post">
         <div class="mb-3" th:each="bal, iter : ${account.balances()}">
             <label th:for="${'tradeable-' + bal.id()}" class="form-label" th:text="${bal.symbol()}"></label>
-            <input type="number" min="0" th:value="${bal.amount()}" th:name="${'tradeable-' + bal.id()}" class="form-control" required/>
+            <input
+                    class="form-control"
+                    th:name="${'tradeable-' + bal.id()}"
+                    th:value="${bal.amount()}"
+                    type="number"
+                    min="0"
+                    th:step="${bal.type().equals('STOCK') ? '1' : '0.0000000001'}"
+                    required
+            />
         </div>
         <button type="submit" class="btn btn-success">Submit</button>
     </form>
