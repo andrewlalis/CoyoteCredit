@@ -3,6 +3,7 @@ package nl.andrewl.coyotecredit.model;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -53,7 +54,7 @@ public class Account {
 	 * Administrators have special permissions to add and remove other accounts,
 	 * custom tradeables, exchange rates, and more.
 	 */
-	@Column(nullable = false)
+	@Column(nullable = false) @Setter
 	private boolean admin;
 
 	/**

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Exchange Accounts', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1 class="display-4">Create Account</h1>
+    <p class="lead">
+        Create a new account for someone to join the exchange. Only for users who don't yet have an account on Coyote Credit.
+    </p>
+
+    <form th:action="@{/exchanges/{eId}/createAccount(eId=${exchangeId})}" method="post">
+        <div class="mb-3">
+            <label for="usernameInput" class="form-label">Username</label>
+            <input id="usernameInput" name="username" class="form-control" type="text" required/>
+        </div>
+        <div class="mb-3">
+            <label for="passwordInput" class="form-label">Password</label>
+            <input id="passwordInput" name="password" class="form-control" type="password" required/>
+        </div>
+        <div class="mb-3">
+            <label for="emailInput" class="form-label">Email</label>
+            <input id="emailInput" name="email" class="form-control" type="email" required/>
+        </div>
+        <div class="mb-3">
+            <label for="accountNameInput" class="form-label">Account Name</label>
+            <input id="accountNameInput" name="accountName" class="form-control" type="text" required/>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+</div>

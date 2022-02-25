@@ -67,6 +67,9 @@ public class UserService {
 		if (userRepository.existsByUsername(payload.username())) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is already taken.");
 		}
+		if (userRepository.existsByEmail(payload.email())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "There is already an account with that email.");
+		}
 		User user = new User(payload.username(), passwordEncoder.encode(payload.password()), payload.email());
 		user = userRepository.save(user);
 		if (payload.inviteCode() != null) {

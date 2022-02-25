@@ -115,23 +115,6 @@ public class AccountService {
 		notificationRepository.save(new UserNotification(recipient.getUser(), recipientMessage));
 	}
 
-	public static record AccountData (
-			long id,
-			String accountNumber,
-			String exchangeName
-	) {}
-
-	@Transactional(readOnly = true)
-	public List<AccountData> getAccountsOverview(User user) {
-		return accountRepository.findAllByUser(user).stream()
-				.map(a -> new AccountData(
-						a.getId(),
-						a.getNumber(),
-						a.getExchange().getName()
-				))
-				.toList();
-	}
-
 	@Transactional(readOnly = true)
 	public FullAccountData getAccountData(User user, long accountId) {
 		Account account = accountRepository.findById(accountId)
@@ -149,6 +132,8 @@ public class AccountService {
 				account.getNumber(),
 				account.getName(),
 				account.isAdmin(),
+				account.getUser().getId(),
+				account.getUser().getUsername(),
 				userAccount.isAdmin(),
 				account.getUser().getId().equals(user.getId()),
 				new ExchangeData(

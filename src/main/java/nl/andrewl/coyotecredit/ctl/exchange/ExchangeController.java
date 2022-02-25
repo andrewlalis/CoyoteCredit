@@ -1,6 +1,7 @@
 package nl.andrewl.coyotecredit.ctl.exchange;
 
 import lombok.RequiredArgsConstructor;
+import nl.andrewl.coyotecredit.ctl.exchange.dto.AddAccountPayload;
 import nl.andrewl.coyotecredit.ctl.exchange.dto.AddSupportedTradeablePayload;
 import nl.andrewl.coyotecredit.ctl.exchange.dto.EditExchangePayload;
 import nl.andrewl.coyotecredit.ctl.exchange.dto.InviteUserPayload;
@@ -64,6 +65,18 @@ public class ExchangeController {
 	public String postRejectInvite(@PathVariable long exchangeId, @PathVariable long inviteId, @AuthenticationPrincipal User user) {
 		exchangeService.rejectInvite(exchangeId, inviteId, user);
 		return "redirect:/users/" + user.getId();
+	}
+
+	@GetMapping(path = "/{exchangeId}/createAccount")
+	public String getCreateAccountPage(@PathVariable long exchangeId, @AuthenticationPrincipal User user) {
+		exchangeService.ensureAdminAccount(exchangeId, user);
+		return "exchange/create_account";
+	}
+
+	@PostMapping(path = "/{exchangeId}/createAccount")
+	public String postCreateAccount(@PathVariable long exchangeId, @AuthenticationPrincipal User user, @ModelAttribute AddAccountPayload payload) {
+		exchangeService.addAccount(exchangeId, user, payload);
+		return "redirect:/exchanges/" + exchangeId + "/accounts";
 	}
 
 	@GetMapping(path = "/{exchangeId}/removeAccount/{accountId}")

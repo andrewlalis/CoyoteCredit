@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -41,6 +42,7 @@ public class ExchangeService {
 	private final ExchangeInvitationRepository invitationRepository;
 	private final UserNotificationRepository notificationRepository;
 	private final JavaMailSender mailSender;
+	private final PasswordEncoder passwordEncoder;
 
 	@Value("${coyote-credit.base-url}")
 	private String baseUrl;
@@ -115,6 +117,23 @@ public class ExchangeService {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
 		return exchange;
+	}
+
+	@Transactional
+	public void addAccount(long exchangeId, User user, AddAccountPayload payload) {
+		Exchange exchange = getExchangeIfAdmin(exchangeId, user);
+		if (userRepository.existsByUsername(payload.username())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is taken.");
+		}
+		if (userRepository.existsByEmail(payload.email())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "There is already an account with that email.");
+		}
+		User newUser = userRepository.save(new User(payload.username(), passwordEncoder.encode(payload.password()), payload.email()));
+		Account account = accountRepository.save(new Account(AccountNumberUtils.generate(), newUser, payload.accountName(), exchange));
+		for (var t : exchange.getAllTradeables()) {
+			account.getBalances().add(new Balance(account, t, BigDecimal.ZERO));
+		}
+		accountRepository.save(account);
 	}
 
 	@Transactional

@@ -6,6 +6,9 @@
 >
 <div id="content" class="container">
     <h1 class="display-4">Accounts</h1>
+    <p class="lead">
+        View all accounts in the exchange.
+    </p>
 
     <table class="table table-dark">
         <thead>
@@ -33,4 +36,5 @@
     </table>
 
     <a class="btn btn-primary" th:href="@{/exchanges/{eId}/inviteUser(eId=${exchangeId})}">Invite User</a>
+    <a class="btn btn-secondary" th:href="@{/exchanges/{eId}/createAccount(eId=${exchangeId})}">Create Account</a>
 </div>

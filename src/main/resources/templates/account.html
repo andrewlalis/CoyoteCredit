@@ -25,6 +25,8 @@
                     <dd class="col-sm-6">
                         <span class="monospace" th:text="${account.totalBalance()}"></span>&nbsp;<span th:text="${account.exchange().primaryTradeable()}"></span>
                     </dd>
+                    <dt class="col-sm-6">Username</dt>
+                    <dd class="col-sm-6" th:text="${account.username()}"></dd>
                 </dl>
             </div>
             <div class="card-footer">
