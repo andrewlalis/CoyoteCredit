@@ -3,6 +3,7 @@ package nl.andrewl.coyotecredit.service;
 import lombok.RequiredArgsConstructor;
 import nl.andrewl.coyotecredit.ctl.exchange.dto.InvitationData;
 import nl.andrewl.coyotecredit.ctl.dto.RegisterPayload;
+import nl.andrewl.coyotecredit.ctl.user.dto.ChangePasswordPayload;
 import nl.andrewl.coyotecredit.ctl.user.dto.UserData;
 import nl.andrewl.coyotecredit.ctl.user.dto.UserNotificationData;
 import nl.andrewl.coyotecredit.dao.*;
@@ -163,5 +164,32 @@ public class UserService {
 			n.setDismissedAt(LocalDateTime.now(ZoneOffset.UTC));
 		}
 		notificationRepository.saveAll(notifications);
+	}
+
+	@Transactional(readOnly = true)
+	public void ensureCanChangePassword(User user, long userId) {
+		User changingUser = userRepository.findById(userId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		if (!(user.isAdmin() || user.getId().equals(changingUser.getId()))) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	@Transactional
+	public void changePassword(User user, long userId, ChangePasswordPayload payload) {
+		User changingUser = userRepository.findById(userId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		if (!(user.isAdmin() || user.getId().equals(changingUser.getId()))) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+		if (!passwordEncoder.matches(payload.currentPassword(), changingUser.getPasswordHash())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is incorrect.");
+		}
+		if (payload.currentPassword().equals(payload.newPassword())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password is the same as the current password.");
+		}
+		changingUser.setPasswordHash(passwordEncoder.encode(payload.newPassword()));
+		userRepository.save(changingUser);
+		notificationRepository.save(new UserNotification(changingUser, "Your password has just been updated."));
 	}
 }
