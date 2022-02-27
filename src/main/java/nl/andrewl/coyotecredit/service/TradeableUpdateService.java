@@ -9,6 +9,7 @@ import nl.andrewl.coyotecredit.dao.TradeableRepository;
 import nl.andrewl.coyotecredit.model.Tradeable;
 import nl.andrewl.coyotecredit.model.TradeableType;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class TradeableUpdateService {
 	private final TradeableRepository tradeableRepository;
+	private final Environment environment;
 
 	private final HttpClient httpClient = HttpClient.newHttpClient();
 	private final ObjectMapper objectMapper = new ObjectMapper();
@@ -57,7 +59,11 @@ public class TradeableUpdateService {
 		for (var tradeable : publicTradeables) {
 			// Special case of ignoring USD as the universal transfer currency.
 			if (tradeable.getSymbol().equals("USD")) continue;
-			executorService.schedule(() -> updateTradeable(tradeable), delay, TimeUnit.SECONDS);
+			if (environment.getProperty("coyote-credit.enable-tradeable-updates", Boolean.TYPE, true)) {
+				executorService.schedule(() -> updateTradeable(tradeable), delay, TimeUnit.SECONDS);
+			} else {
+				log.info("Tradeable update skipped for {}.", tradeable.getSymbol());
+			}
 			delay += POLYGON_API_TIMEOUT;
 		}
 	}

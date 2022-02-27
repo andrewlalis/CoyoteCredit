@@ -10,11 +10,12 @@
         Transfer funds to other accounts.
     </p>
     <form th:action="@{/accounts/{aId}/transfer(aId=${accountId})}" th:method="post">
+        <input type="hidden" id="exchangeIdInput" th:value="${data.exchangeId()}"/>
         <div class="mb-3">
             <label for="recipientNumberInput" class="form-label">Recipient Account Number</label>
-            <input type="text" name="recipientNumber" class="form-control" id="recipientNumberInput" required/>
-            <small class="text-muted">
-                Format: <span class="monospace">1234-1234-1234-1234</span><br>
+            <input type="text" name="recipientNumber" class="form-control monospace" id="recipientNumberInput" required/>
+            <small class="text-muted text-danger" id="recipientNumberNote">
+                Enter an account number.
             </small>
         </div>
         <div class="mb-3">
@@ -22,7 +23,7 @@
             <select class="form-select" id="tradeableSelect" name="tradeableId" required>
                 <option value="" selected disabled hidden>Choose something to send</option>
                 <option
-                        th:each="b : ${balances}"
+                        th:each="b : ${data.balances()}"
                         th:text="${b.symbol() + ' - Balance ' + b.amount()}"
                         th:value="${b.id()}"
                         th:data-amount="${b.amount()}"

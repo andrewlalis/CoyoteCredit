@@ -104,6 +104,18 @@ public class ExchangeService {
 	}
 
 	@Transactional(readOnly = true)
+	public PublicAccountData getPublicAccountData(long exchangeId, String number, User user) {
+		Exchange exchange = exchangeRepository.findById(exchangeId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		if (!accountRepository.existsByUserAndExchange(user, exchange)) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+		Account account = accountRepository.findByNumberAndExchange(number, exchange)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		return new PublicAccountData(account.getId(), account.getNumber(), account.getName());
+	}
+
+	@Transactional(readOnly = true)
 	public void ensureAdminAccount(long exchangeId, User user) {
 		getExchangeIfAdmin(exchangeId, user);
 	}
@@ -168,9 +180,12 @@ public class ExchangeService {
 	}
 
 	@Transactional(readOnly = true)
-	public Map<Long, String> getCurrentTradeables(long exchangeId) {
+	public Map<Long, String> getCurrentTradeables(long exchangeId, User user) {
 		Exchange e = exchangeRepository.findById(exchangeId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		if (!accountRepository.existsByUserAndExchange(user, e)) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
 		Map<Long, String> tradeables = new HashMap<>();
 		for (var t : e.getAllTradeables()) {
 			tradeables.put(t.getId(), t.getMarketPriceUsd().toPlainString());

@@ -1,7 +1,7 @@
-package nl.andrewl.coyotecredit.ctl;
+package nl.andrewl.coyotecredit.ctl.exchange;
 
 import lombok.RequiredArgsConstructor;
-import nl.andrewl.coyotecredit.ctl.dto.TransferPayload;
+import nl.andrewl.coyotecredit.ctl.exchange.dto.TransferPayload;
 import nl.andrewl.coyotecredit.model.User;
 import nl.andrewl.coyotecredit.service.AccountService;
 import org.springframework.http.HttpStatus;
@@ -45,7 +45,7 @@ public class AccountPage {
 
 	@GetMapping(path = "/transfer")
 	public String getTransferPage(Model model, @PathVariable long accountId, @AuthenticationPrincipal User user) {
-		model.addAttribute("balances", accountService.getTransferData(accountId, user));
+		model.addAttribute("data", accountService.getTransferData(accountId, user));
 		return "account/transfer";
 	}
 

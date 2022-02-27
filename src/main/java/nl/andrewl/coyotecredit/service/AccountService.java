@@ -2,7 +2,7 @@ package nl.andrewl.coyotecredit.service;
 
 import lombok.RequiredArgsConstructor;
 import nl.andrewl.coyotecredit.ctl.dto.*;
-import nl.andrewl.coyotecredit.ctl.exchange.dto.ExchangeData;
+import nl.andrewl.coyotecredit.ctl.exchange.dto.*;
 import nl.andrewl.coyotecredit.dao.*;
 import nl.andrewl.coyotecredit.model.*;
 import nl.andrewl.coyotecredit.util.AccountNumberUtils;
@@ -34,13 +34,13 @@ public class AccountService {
 	private final UserNotificationRepository notificationRepository;
 
 	@Transactional(readOnly = true)
-	public List<BalanceData> getTransferData(long accountId, User user) {
+	public TransferPageData getTransferData(long accountId, User user) {
 		Account account = accountRepository.findById(accountId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		if (!account.getUser().getId().equals(user.getId())) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
-		return account.getBalances().stream()
+		List<BalanceData> balances = account.getBalances().stream()
 				.filter(b -> b.getAmount().compareTo(BigDecimal.ZERO) > 0)
 				.map(b -> new BalanceData(
 						b.getTradeable().getId(),
@@ -50,6 +50,7 @@ public class AccountService {
 				))
 				.sorted(Comparator.comparing(BalanceData::symbol))
 				.toList();
+		return new TransferPageData(account.getExchange().getId(), balances);
 	}
 
 	@Transactional

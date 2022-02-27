@@ -1,5 +1,6 @@
-package nl.andrewl.coyotecredit.ctl.dto;
+package nl.andrewl.coyotecredit.ctl.exchange.dto;
 
+import nl.andrewl.coyotecredit.ctl.dto.TradeableData;
 import nl.andrewl.coyotecredit.model.Transaction;
 
 import java.time.format.DateTimeFormatter;

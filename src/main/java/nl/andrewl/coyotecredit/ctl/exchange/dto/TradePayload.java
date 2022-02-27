@@ -1,4 +1,4 @@
-package nl.andrewl.coyotecredit.ctl.dto;
+package nl.andrewl.coyotecredit.ctl.exchange.dto;
 
 /**
  * The payload that's sent when a user performs a trade with the market. This

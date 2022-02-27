@@ -1,7 +1,7 @@
-package nl.andrewl.coyotecredit.ctl;
+package nl.andrewl.coyotecredit.ctl.exchange;
 
 import lombok.RequiredArgsConstructor;
-import nl.andrewl.coyotecredit.ctl.dto.TradePayload;
+import nl.andrewl.coyotecredit.ctl.exchange.dto.TradePayload;
 import nl.andrewl.coyotecredit.model.User;
 import nl.andrewl.coyotecredit.service.ExchangeService;
 import nl.andrewl.coyotecredit.service.TradeService;
@@ -26,7 +26,7 @@ public class TradePage {
 			@AuthenticationPrincipal User user
 	) {
 		model.addAttribute("data", tradeService.getTradeData(accountId, user));
-		return "trade";
+		return "account/trade";
 	}
 
 	@PostMapping

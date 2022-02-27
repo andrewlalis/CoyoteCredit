@@ -1,7 +1,7 @@
 package nl.andrewl.coyotecredit.service;
 
 import lombok.RequiredArgsConstructor;
-import nl.andrewl.coyotecredit.ctl.dto.TradeData;
+import nl.andrewl.coyotecredit.ctl.exchange.dto.TradeData;
 import nl.andrewl.coyotecredit.ctl.dto.TradeableData;
 import nl.andrewl.coyotecredit.dao.AccountRepository;
 import nl.andrewl.coyotecredit.model.Account;
