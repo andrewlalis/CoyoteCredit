@@ -68,7 +68,7 @@ public class TradeableUpdateService {
 		}
 	}
 
-	private void updateTradeable(Tradeable tradeable) {
+	public void updateTradeable(Tradeable tradeable) {
 		BigDecimal updatedValue = null;
 		if (tradeable.getType().equals(TradeableType.STOCK)) {
 			updatedValue = fetchStockClosePrice(tradeable.getSymbol());

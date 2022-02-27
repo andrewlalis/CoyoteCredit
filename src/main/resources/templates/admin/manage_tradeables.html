@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Manage Tradeables', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1 class="display-4">Manage Tradeable Assets</h1>
+    <p class="lead">
+        Manage the global collection of tradeable assets that exchanges may incorporate into their
+        systems.
+    </p>
+
+    <div class="card text-white bg-dark mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Tradeable Assets</h5>
+            <table class="table table-dark">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Symbol</th>
+                    <th>Price (USD)</th>
+                    <th>Type</th>
+                    <th>Remove</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="tradeable : ${tradeables}">
+                    <td>
+                        <a class="colored-link" th:href="@{/tradeables/{tId}(tId=${tradeable.id()})}" th:text="${tradeable.name()}"></a>
+                    </td>
+                    <td th:text="${tradeable.symbol()}"></td>
+                    <td class="monospace" th:text="${tradeable.formattedPriceUsd()}"></td>
+                    <td th:text="${tradeable.type()}"></td>
+                    <td>
+                        <a
+                                class="colored-link"
+                                th:href="@{/admin/manageTradeables/remove/{tId}(tId=${tradeable.id()})}"
+                                th:if="${!tradeable.symbol().equalsIgnoreCase('USD')}"
+                        >Remove</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <span>
+                <a class="btn btn-primary" th:href="@{/admin/manageTradeables/add}">Add</a>
+            </span>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Remove Tradeable', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1 class="display-4">Remove Tradeable</h1>
+    <p class="lead">
+        Are you sure you want to remove this tradeable? It will be removed from all exchanges, and
+        all accounts will have their balance of this tradeable removed permanently.
+    </p>
+    <form th:action="@{/admin/manageTradeables/remove/{tId}(tId=${tradeableId})}" method="post">
+        <button type="submit" class="btn btn-danger">Remove</button>
+    </form>
+    <a th:href="@{/admin/manageTradeables}" class="btn btn-secondary">Cancel</a>
+</div>

@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface TradeableRepository extends JpaRepository<Tradeable, Long> {
 	List<Tradeable> findAllByExchangeNull();
+	boolean existsByExchangeNullAndSymbol(String symbol);
 }

@@ -2,8 +2,10 @@ package nl.andrewl.coyotecredit.dao;
 
 import nl.andrewl.coyotecredit.model.Account;
 import nl.andrewl.coyotecredit.model.Exchange;
+import nl.andrewl.coyotecredit.model.Tradeable;
 import nl.andrewl.coyotecredit.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,4 +20,9 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 	boolean existsByUserAndExchange(User user, Exchange exchange);
 
 	List<Account> findAllByExchange(Exchange e);
+
+	@Query("SELECT a FROM Account a " +
+			"LEFT JOIN FETCH a.balances bal " +
+			"WHERE bal.tradeable = :t")
+	List<Account> findAllWithBalanceForTradeable(Tradeable t);
 }

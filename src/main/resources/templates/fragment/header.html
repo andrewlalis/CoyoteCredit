@@ -36,6 +36,9 @@
                         ></span>
                     </a>
                 </li>
+                <li class="nav-item" th:if="${#authentication.getPrincipal().isAdmin()}">
+                    <a class="nav-link" th:href="@{/admin}">Admin</a>
+                </li>
             </ul>
             <form class="d-flex" th:action="@{/logout}" th:method="post">
                 <button class="btn btn-dark" type="submit">Logout</button>

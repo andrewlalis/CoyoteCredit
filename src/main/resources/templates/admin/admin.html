@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Admin', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1 class="display-4">Admin</h1>
+    <p class="lead">
+        Control top-level application settings and data within this admin interface.
+    </p>
+
+    <a class="btn btn-primary" th:href="@{/admin/manageTradeables}">Manage Tradeable Assets</a>
+</div>

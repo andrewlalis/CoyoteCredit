@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html
+        lang="en"
+        xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{layout/basic_page :: layout (title='Add Tradeable', content=~{::#content})}"
+>
+<div id="content" class="container">
+    <h1 class="display-4">Add Tradeable Asset</h1>
+    <p class="lead">Add a new publicly tradeable asset for exchanges to use.</p>
+    <form th:action="@{/admin/manageTradeables/add}" method="post">
+        <div class="mb-3">
+            <label for="nameInput" class="form-label">Name</label>
+            <input id="nameInput" name="name" class="form-control" type="text" required/>
+        </div>
+        <div class="mb-3">
+            <label for="symbolInput" class="form-label">Symbol</label>
+            <input id="symbolInput" name="symbol" class="form-control" type="text" required/>
+        </div>
+        <div class="mb-3">
+            <label for="typeSelect" class="form-label">Type</label>
+            <select id="typeSelect" name="type" class="form-select" required>
+                <option>FIAT</option>
+                <option>CRYPTO</option>
+                <option>STOCK</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="descriptionInput" class="form-label">Description</label>
+            <textarea id="descriptionInput" name="description" class="form-control" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+</div>
